@@ -44,7 +44,7 @@ const supabase = useSupabaseClient()
 const config = useRuntimeConfig()
 const localePath = useLocalePath()
 const devLogin = import.meta.dev || config.public.devLogin === 'true'
-const { mode, enterDemo } = useSession()
+const { mode, enterDemo, afterSignIn } = useSession()
 const { t } = useI18n()
 useHead({ title: () => t('login.title') })
 
@@ -61,7 +61,7 @@ async function oauth(provider: 'google' | 'github') {
   error.value = ''
   const { error: e } = await supabase.auth.signInWithOAuth({
     provider,
-    options: { redirectTo: `${config.public.siteUrl}${localePath('/confirm')}` },
+    options: { redirectTo: `${config.public.siteUrl}/confirm` },
   })
   if (e) error.value = e.message
 }
@@ -75,6 +75,6 @@ async function password() {
   }
   // Don't wait for onAuthStateChange: the auth middleware runs on the very next navigation.
   useSupabaseSession().value = data.session
-  await navigateTo(localePath('/tracks'))
+  await afterSignIn()
 }
 </script>

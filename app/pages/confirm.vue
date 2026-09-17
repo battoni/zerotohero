@@ -4,9 +4,13 @@
 
 <script setup lang="ts">
 const user = useSupabaseUser()
-const localePath = useLocalePath()
+const { afterSignIn } = useSession()
 
+let done = false
 watch(user, (u) => {
-  if (u) navigateTo(localePath('/tracks'))
+  if (u && !done) {
+    done = true
+    afterSignIn()
+  }
 }, { immediate: true })
 </script>

@@ -5,7 +5,7 @@ Build a study trail, break it into milestones and tick them off one by one. Use 
 ## Stack
 
 - Nuxt 4 (Vue 3, TypeScript), Tailwind 4
-- Supabase: Postgres with Row Level Security, Auth (Google, GitHub), Storage, Realtime
+- Supabase: Postgres with Row Level Security, Auth (Google, GitHub), Storage
 - `@nuxtjs/i18n`: English and Brazilian Portuguese from day one
 
 ## Try it without a backend

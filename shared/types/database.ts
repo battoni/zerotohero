@@ -128,6 +128,9 @@ export interface Database {
       reopen_milestone: { Args: { p_id: string }, Returns: string[] }
       are_friends: { Args: { a: string, b: string }, Returns: boolean }
       can_view_track: { Args: { p_track_id: string }, Returns: boolean }
+      owns_track: { Args: { p_track_id: string }, Returns: boolean }
+      can_view_activity: { Args: { p_activity_id: string }, Returns: boolean }
+      record_track_completed: { Args: { p_track: string }, Returns: undefined }
     }
     Enums: {
       track_color: TrackColor
