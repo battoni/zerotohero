@@ -1,0 +1,48 @@
+{
+  "app": {
+    "name": "Zero to Hero",
+    "tagline": "Monte uma trilha de estudo, quebre em marcos e vá riscando um por um."
+  },
+  "nav": {
+    "myTracks": "Minhas trilhas",
+    "explore": "Explorar",
+    "friends": "Amigos",
+    "settings": "Ajustes",
+    "signOut": "Sair"
+  },
+  "landing": {
+    "title": "Do zero ao herói, um marco de cada vez",
+    "lede": "Para uma certificação, uma linguagem nova ou uma virada de carreira. Sozinho ou com os amigos.",
+    "cta": "Começar",
+    "steps": {
+      "create": { "title": "Crie uma trilha", "body": "Dê um nome, um objetivo e, se quiser, uma data. Comece do zero ou copie o modelo de alguém." },
+      "split": { "title": "Quebre em marcos", "body": "Agrupe os marcos em fases. Cada marco é algo que dá para concluir." },
+      "tick": { "title": "Vá riscando", "body": "Ao concluir, anexe a evidência: um link, uma nota ou o certificado." },
+      "share": { "title": "Compartilhe", "body": "Publique a trilha como modelo, acompanhe amigos e mande um \"boa!\"." }
+    }
+  },
+  "login": {
+    "title": "Entrar",
+    "lede": "Escolha uma conta para continuar.",
+    "google": "Continuar com Google",
+    "github": "Continuar com GitHub",
+    "devTitle": "Entrada de desenvolvimento",
+    "email": "E-mail",
+    "password": "Senha",
+    "submit": "Entrar",
+    "error": "Não foi possível entrar: {message}"
+  },
+  "confirm": {
+    "loading": "Entrando…"
+  },
+  "tracks": {
+    "title": "Minhas trilhas",
+    "empty": "Nenhuma trilha ainda. Crie a primeira."
+  },
+  "settings": {
+    "language": "Idioma"
+  },
+  "common": {
+    "loading": "Carregando…"
+  }
+}

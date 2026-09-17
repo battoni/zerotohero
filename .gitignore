@@ -1,0 +1,23 @@
+# Planejamento pessoal: contém contexto privado do dono. Nunca versionar neste repo público.
+plans/
+
+node_modules/
+.nuxt/
+.output/
+.data/
+.nitro/
+.cache/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+coverage/
+test-results/
+playwright-report/
+supabase/.temp/
+supabase/.branches/
+
+# Trilhas pessoais do dono para o seed.
+seed/personal/

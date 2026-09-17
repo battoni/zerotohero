@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Design tokens — source: approved prototype (docs/spec-mvp.md §5). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #F2F1FA;
+  --surface: #FFFFFF;
+  --surface-2: #EAE8F5;
+  --ink: #1B1830;
+  --muted: #625D7C;
+  --soft-line: rgba(40, 30, 90, .08);
+  --shadow-soft: 0 1px 2px rgba(40, 30, 90, .05), 0 10px 30px -12px rgba(40, 30, 90, .18);
+  --mint: #10B77F;
+  --mint-soft: #DDF6EC;
+  --violet: #6B4EFF;
+  --violet-soft: #E7E2FF;
+  --coral: #FF6A4D;
+  --coral-soft: #FFE4DE;
+  --sky: #1F95F2;
+  --sky-soft: #DDEFFD;
+  --sun: #F5A300;
+  --sun-soft: #FFF0D1;
+  --on-color: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --bg: #100E1C;
+    --surface: #1A1729;
+    --surface-2: #231F36;
+    --ink: #EEEBFA;
+    --muted: #A39DC0;
+    --soft-line: rgba(220, 210, 255, .08);
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -12px rgba(0, 0, 0, .6);
+    --mint: #34D399;
+    --mint-soft: #123527;
+    --violet: #8F78FF;
+    --violet-soft: #29224F;
+    --coral: #FF8266;
+    --coral-soft: #3D1F19;
+    --sky: #52AEF7;
+    --sky-soft: #132E45;
+    --sun: #FFBC3B;
+    --sun-soft: #3A2C0E;
+  }
+}
+
+@theme inline {
+  --font-sans: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--soft-line);
+  --color-on-color: var(--on-color);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+
+  --radius-card: 18px;
+  --radius-device: 26px;
+  --shadow-soft: var(--shadow-soft);
+}
+
+@layer base {
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: var(--font-sans); font-size: 15px; line-height: 1.55; }
+  h1, h2, h3, h4 { text-wrap: balance; letter-spacing: -.01em; }
+  :focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+}
+
+@layer components {
+  /* Track cover gradients — one per track_color enum value. */
+  .cover-violet { background: linear-gradient(135deg, #6B4EFF, #9B6BFF); }
+  .cover-coral { background: linear-gradient(135deg, #FF6A4D, #FF9B5E); }
+  .cover-sky { background: linear-gradient(135deg, #1F95F2, #3CC8E8); }
+  .cover-mint { background: linear-gradient(135deg, #0FA878, #4FD1A0); }
+  .cover-sun { background: linear-gradient(135deg, #F59E0B, #FFC94D); }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
