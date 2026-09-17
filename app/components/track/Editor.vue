@@ -57,12 +57,12 @@
       <div class="relative flex min-h-[150px] flex-col justify-between overflow-hidden rounded-[20px] p-5 text-white transition-[background]" :class="`cover-${form.color}`" data-testid="editor-cover">
         <span class="absolute -bottom-12 -right-8 size-40 rounded-full bg-white/15" aria-hidden="true" />
         <span class="relative text-4xl" aria-hidden="true">{{ form.emoji || '🎯' }}</span>
-        <h2 class="relative text-2xl font-black">{{ form.title || $t('editor.namePlaceholder') }}</h2>
+        <p class="relative text-2xl font-black" aria-hidden="true">{{ form.title || $t('editor.namePlaceholder') }}</p>
       </div>
 
       <label class="label">
         {{ $t('editor.name') }}
-        <input id="editor-title" v-model="form.title" class="field" maxlength="80" :placeholder="$t('editor.namePlaceholder')" data-testid="editor-title">
+        <input id="editor-title" v-model="form.title" class="field" :aria-invalid="errorKey === 'editor.errorTitle' || undefined" :aria-describedby="errorKey === 'editor.errorTitle' ? 'editor-error' : undefined" maxlength="80" :placeholder="$t('editor.namePlaceholder')" data-testid="editor-title">
       </label>
       <label class="label">
         {{ $t('editor.goal') }}
@@ -78,7 +78,7 @@
           <input id="editor-date" v-model="targetDate" type="date" class="field num" data-testid="editor-date">
         </label>
       </div>
-      <div class="flex flex-wrap gap-1.5" :aria-label="$t('editor.emoji')">
+      <div class="flex flex-wrap gap-1.5" role="group" :aria-label="$t('editor.emoji')">
         <button
           v-for="e in EMOJIS" :key="e" type="button"
           class="grid size-9 place-items-center rounded-xl text-lg hover:bg-surface-2"
@@ -156,7 +156,7 @@
         + {{ $t('editor.addPhase') }}
       </button>
 
-      <p v-if="errorKey" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert" data-testid="editor-error">{{ $t(errorKey) }}</p>
+      <p v-if="errorKey" id="editor-error" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert" data-testid="editor-error">{{ $t(errorKey) }}</p>
       <div class="flex flex-wrap gap-2">
         <UiBtn type="submit" variant="primary" :disabled="saving" data-testid="editor-save">
           {{ saving ? $t('editor.saving') : (isNew ? $t('editor.save') : $t('editor.update')) }}

@@ -96,8 +96,6 @@
     "noFollowers": "Nobody yet. Make it public to be found.",
     "evidence": "Latest evidence",
     "noEvidence": "Evidence you attach shows up here.",
-    "markDone": "Complete: {title}",
-    "markOpen": "Reopen: {title}",
     "due": "due {date}",
     "doneOn": "done {date}",
     "phaseCount": "{done}/{total}",
@@ -111,7 +109,8 @@
     "reopenBody": "Its evidence and time spent will be deleted.",
     "reopenYes": "Reopen and delete",
     "actionError": "That did not work. Try again.",
-    "noFollowersPublic": "Nobody yet."
+    "noFollowersPublic": "Nobody yet.",
+    "toggleDone": "Done: {title}"
   },
   "complete": {
     "title": "Complete milestone",
@@ -269,7 +268,8 @@
     "searchLabel": "Find people",
     "removeTitle": "Remove {name} from your friends?",
     "removeYes": "Yes, remove",
-    "cancelRequest": "Cancel request"
+    "cancelRequest": "Cancel request",
+    "profileOf": "Profile of {name}"
   },
   "profile": {
     "trailsActive": "{count} active trail | {count} active trails",
@@ -331,5 +331,9 @@
     "body": "The link may be old or mistyped.",
     "back": "Back to my trails",
     "home": "Go to the home page"
+  },
+  "meta": {
+    "description": "Build a study trail, break it into milestones and tick them off one by one.",
+    "ogDescription": "Study trails with milestones, evidence and friends."
   }
 }

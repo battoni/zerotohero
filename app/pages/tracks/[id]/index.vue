@@ -30,7 +30,7 @@
               </template>
               <template v-else>
                 <UiBtn size="sm" variant="ink" :to="localePath(`/tracks/new?from=${track.id}`)" data-testid="track-copy">{{ $t('track.useTemplate') }}</UiBtn>
-                <UiBtn size="sm" variant="ghost" class="bg-white/15! text-white!" :disabled="busy" :aria-pressed="track.isFollowing" data-testid="track-follow" @click="toggleFollow">
+                <UiBtn size="sm" variant="ghost" class="bg-white/15! text-white!" :disabled="busy" :data-on="track.isFollowing" data-testid="track-follow" @click="toggleFollow">
                   {{ track.isFollowing ? $t('track.following') : $t('track.follow') }}
                 </UiBtn>
               </template>

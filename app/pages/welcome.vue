@@ -9,29 +9,29 @@
         {{ $t('welcome.handle') }}
         <span class="flex items-center gap-1 rounded-xl bg-surface-2 pl-3">
           <span class="font-bold text-muted">@</span>
-          <input id="welcome-handle" v-model="handle" class="field pl-0" autocomplete="username" maxlength="20" data-testid="welcome-handle">
+          <input id="welcome-handle" v-model="handle" class="field pl-0" autocomplete="username" maxlength="20" :aria-invalid="!!errorKey || undefined" :aria-describedby="errorKey ? 'welcome-handle-hint welcome-error' : 'welcome-handle-hint'" data-testid="welcome-handle">
         </span>
-        <span class="font-medium">{{ $t('welcome.handleHint') }}</span>
       </label>
+      <span id="welcome-handle-hint" class="-mt-2 text-[13px] font-medium text-muted">{{ $t('welcome.handleHint') }}</span>
       <label class="label">
         {{ $t('welcome.name') }}
         <input id="welcome-name" v-model="name" class="field" maxlength="60" autocomplete="name" data-testid="welcome-name">
       </label>
       <div class="label">
         {{ $t('welcome.language') }}
-        <div class="flex gap-2">
+        <div class="flex gap-2" role="radiogroup" :aria-label="$t('welcome.language')">
           <button
-            v-for="l in locales" :key="l.code" type="button"
+            v-for="l in locales" :key="l.code" type="button" role="radio"
             class="rounded-full px-4 py-2 text-sm font-semibold"
             :class="lang === l.code ? 'bg-violet text-on-color' : 'bg-surface-2 text-muted'"
-            :aria-pressed="lang === l.code"
+            :aria-checked="lang === l.code"
             @click="lang = l.code as Locale"
           >
             {{ l.name }}
           </button>
         </div>
       </div>
-      <p v-if="errorKey" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert">{{ $t(errorKey) }}</p>
+      <p v-if="errorKey" id="welcome-error" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert">{{ $t(errorKey) }}</p>
       <UiBtn type="submit" variant="primary" :disabled="saving" data-testid="welcome-submit">{{ $t('welcome.submit') }}</UiBtn>
     </form>
   </div>
@@ -65,6 +65,7 @@ async function save() {
   const h = handle.value.trim().toLowerCase()
   if (!/^[a-z0-9_]{3,20}$/.test(h)) {
     errorKey.value = 'welcome.errorHandle'
+    document.getElementById('welcome-handle')?.focus()
     return
   }
   saving.value = true

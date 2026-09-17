@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col" data-testid="trail">
     <div v-for="phase in phases" :key="phase.id" class="flex flex-col">
-      <div class="flex items-center gap-2.5 pb-2.5 pt-1.5 text-[15px] font-extrabold">
+      <h2 class="flex items-center gap-2.5 pb-2.5 pt-1.5 text-[15px] font-extrabold">
         <span>{{ phase.title }}</span>
         <span class="num text-xs font-bold text-muted">{{ $t('track.phaseCount', { done: doneIn(phase), total: phase.milestones.length }) }}</span>
-      </div>
+      </h2>
       <div
         v-for="m in phase.milestones"
         :key="m.id"
@@ -23,12 +23,12 @@
           :type="editable ? 'button' : undefined"
           class="relative grid size-[34px] place-items-center rounded-full border-[3px] transition-[transform,background,border-color]"
           :class="[
-            m.completedAt ? 'border-mint bg-mint' : 'border-surface-2 bg-surface',
+            m.completedAt ? 'border-mint bg-mint' : 'border-ring bg-surface',
             m.id === currentId ? 'border-violet! shadow-[0_0_0_5px_var(--violet-soft)]' : '',
             editable ? 'cursor-pointer hover:scale-110 hover:border-mint' : '',
           ]"
           :aria-pressed="editable ? (m.completedAt ? 'true' : 'false') : undefined"
-          :aria-label="editable ? $t(m.completedAt ? 'track.markOpen' : 'track.markDone', { title: m.title }) : undefined"
+          :aria-label="editable ? $t('track.toggleDone', { title: m.title }) : undefined"
           :data-testid="editable ? `toggle-${m.id}` : undefined"
           @click="editable && emit('toggle', m)"
         >

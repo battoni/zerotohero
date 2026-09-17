@@ -92,10 +92,10 @@ test('copy a public template and cheer a friend', async ({ page }) => {
   await expect(page.getByTestId('explore-list')).toContainText('used by 13 people')
 
   await go(page, '/friends')
-  const cheer = page.locator('[data-testid^="kudos-"][aria-pressed="false"]').first()
+  const cheer = page.locator('[data-testid^="kudos-"][data-on="false"]').first()
   const testId = await cheer.getAttribute('data-testid')
   await cheer.click()
-  await expect(page.getByTestId(testId!)).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByTestId(testId!)).toHaveAttribute('data-on', 'true')
 
   const items = page.getByTestId('feed').locator(':scope > [data-testid^="feed-"]:not([data-testid="feed-more"])')
   await expect(items).toHaveCount(15)
@@ -175,4 +175,12 @@ test('a sent friend request can be cancelled', async ({ page }) => {
   await page.getByTestId(/^add-/).first().click()
   await page.getByTestId('cancel-carla').click()
   await expect(page.getByTestId('cancel-carla')).toHaveCount(0)
+})
+
+test('pages carry localized meta and language alternates', async ({ page }) => {
+  await go(page, '/pt-BR')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR')
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /trilha de estudo/)
+  await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveCount(1)
+  await expect(page.locator('link[rel="alternate"][hreflang="pt-BR"]')).toHaveCount(1)
 })

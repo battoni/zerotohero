@@ -4,12 +4,12 @@
 
     <section class="flex flex-col gap-3 rounded-card bg-surface p-5 shadow-soft">
       <h2 class="font-extrabold">{{ $t('settings.language') }}</h2>
-      <div class="flex gap-2">
+      <div class="flex gap-2" role="radiogroup" :aria-label="$t('settings.language')">
         <button
-          v-for="l in locales" :key="l.code" type="button"
+          v-for="l in locales" :key="l.code" type="button" role="radio"
           class="rounded-full px-4 py-2 text-sm font-semibold"
           :class="l.code === locale ? 'bg-violet text-on-color' : 'bg-surface-2 text-muted'"
-          :aria-pressed="l.code === locale"
+          :aria-checked="l.code === locale"
           :data-testid="`settings-locale-${l.code}`"
           @click="changeLocale(l.code as Locale)"
         >
@@ -20,16 +20,20 @@
 
     <form class="flex flex-col gap-3 rounded-card bg-surface p-5 shadow-soft" novalidate @submit.prevent="saveProfile">
       <h2 class="font-extrabold">{{ $t('settings.profile') }}</h2>
-      <label class="label">
-        {{ $t('welcome.handle') }}
-        <input id="settings-handle" v-model="handle" class="field" maxlength="20" data-testid="settings-handle">
-        <span class="font-medium">{{ $t('welcome.handleHint') }}</span>
-      </label>
+      <div class="flex flex-col gap-1.5">
+        <label class="label" for="settings-handle">{{ $t('welcome.handle') }}</label>
+        <input
+          id="settings-handle" v-model="handle" class="field" maxlength="20"
+          :aria-invalid="!!errorKey || undefined" :aria-describedby="errorKey ? 'settings-handle-hint settings-error' : 'settings-handle-hint'"
+          data-testid="settings-handle"
+        >
+        <span id="settings-handle-hint" class="text-[13px] font-medium text-muted">{{ $t('welcome.handleHint') }}</span>
+      </div>
       <label class="label">
         {{ $t('welcome.name') }}
         <input id="settings-name" v-model="name" class="field" maxlength="60" data-testid="settings-name">
       </label>
-      <p v-if="errorKey" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert">{{ $t(errorKey) }}</p>
+      <p v-if="errorKey" id="settings-error" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert">{{ $t(errorKey) }}</p>
       <div class="flex items-center gap-3">
         <UiBtn type="submit" variant="primary" :disabled="saving" data-testid="settings-save">{{ $t('settings.save') }}</UiBtn>
         <span v-if="saved" class="text-sm font-bold text-mint" role="status">{{ $t('settings.saved') }}</span>
@@ -103,6 +107,7 @@ async function saveProfile() {
   const h = handle.value.trim().toLowerCase()
   if (!/^[a-z0-9_]{3,20}$/.test(h)) {
     errorKey.value = 'welcome.errorHandle'
+    document.getElementById('settings-handle')?.focus()
     return
   }
   saving.value = true

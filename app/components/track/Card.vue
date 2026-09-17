@@ -7,7 +7,7 @@
       <span class="absolute -bottom-10 -right-8 size-32 rounded-full bg-white/15" aria-hidden="true" />
       <div class="relative min-w-0">
         <span class="text-3xl leading-none" aria-hidden="true">{{ track.emoji }}</span>
-        <h3 :id="titleId" class="mt-2.5 text-lg font-extrabold leading-tight">{{ track.title }}</h3>
+        <component :is="`h${headingLevel}`" :id="titleId" class="mt-2.5 text-lg font-extrabold leading-tight">{{ track.title }}</component>
       </div>
       <UiProgressRing v-if="showProgress" :value="pct" light class="relative" />
     </div>
@@ -41,7 +41,7 @@
 import type { TrackSummary } from '~~/shared/types/domain'
 import { percent } from '~~/shared/utils/progress'
 
-const props = withDefaults(defineProps<{ track: TrackSummary, showProgress?: boolean }>(), { showProgress: true })
+const props = withDefaults(defineProps<{ track: TrackSummary, showProgress?: boolean, headingLevel?: 2 | 3 }>(), { showProgress: true, headingLevel: 2 })
 const localePath = useLocalePath()
 const { locale } = useI18n()
 const titleId = useId()

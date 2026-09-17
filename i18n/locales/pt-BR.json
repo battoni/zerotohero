@@ -96,8 +96,6 @@
     "noFollowers": "Ninguém ainda. Deixe pública para ser encontrada.",
     "evidence": "Últimas evidências",
     "noEvidence": "As evidências que você anexar aparecem aqui.",
-    "markDone": "Concluir: {title}",
-    "markOpen": "Reabrir: {title}",
     "due": "até {date}",
     "doneOn": "concluído em {date}",
     "phaseCount": "{done}/{total}",
@@ -111,7 +109,8 @@
     "reopenBody": "A evidência e o tempo gasto serão apagados.",
     "reopenYes": "Reabrir e apagar",
     "actionError": "Não deu certo. Tente de novo.",
-    "noFollowersPublic": "Ninguém ainda."
+    "noFollowersPublic": "Ninguém ainda.",
+    "toggleDone": "Concluído: {title}"
   },
   "complete": {
     "title": "Concluir marco",
@@ -269,7 +268,8 @@
     "searchLabel": "Encontrar pessoas",
     "removeTitle": "Remover {name} dos seus amigos?",
     "removeYes": "Sim, remover",
-    "cancelRequest": "Cancelar pedido"
+    "cancelRequest": "Cancelar pedido",
+    "profileOf": "Perfil de {name}"
   },
   "profile": {
     "trailsActive": "{count} trilha ativa | {count} trilhas ativas",
@@ -331,5 +331,9 @@
     "body": "O link pode estar antigo ou com erro de digitação.",
     "back": "Voltar para minhas trilhas",
     "home": "Ir para o início"
+  },
+  "meta": {
+    "description": "Monte uma trilha de estudo, divida em marcos e vá riscando um por um.",
+    "ogDescription": "Trilhas de estudo com marcos, evidências e amigos."
   }
 }

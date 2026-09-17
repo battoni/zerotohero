@@ -23,15 +23,15 @@
 
       <label v-if="kind === 'link' || kind === 'certificate'" class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
         {{ $t('complete.url') }}
-        <input id="complete-url" v-model="url" type="url" inputmode="url" :placeholder="$t('complete.urlPlaceholder')" class="field" data-testid="evidence-url">
+        <input id="complete-url" v-model="url" :aria-invalid="invalidField === 'complete-url' || undefined" :aria-describedby="invalidField === 'complete-url' ? 'complete-error' : undefined" type="url" inputmode="url" :placeholder="$t('complete.urlPlaceholder')" class="field" data-testid="evidence-url">
       </label>
       <label v-if="kind === 'note'" class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
         {{ $t('complete.note') }}
-        <textarea id="complete-note" v-model="note" rows="3" class="field" data-testid="evidence-note" />
+        <textarea id="complete-note" v-model="note" :aria-invalid="invalidField === 'complete-note' || undefined" :aria-describedby="invalidField === 'complete-note' ? 'complete-error' : undefined" rows="3" class="field" data-testid="evidence-note" />
       </label>
       <label v-if="kind === 'file' || kind === 'certificate'" class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
         {{ $t('complete.file') }}
-        <input id="complete-file" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" class="field" data-testid="evidence-file" @change="onFile">
+        <input id="complete-file" :aria-invalid="invalidField === 'complete-file' || undefined" :aria-describedby="invalidField === 'complete-file' ? 'complete-error' : undefined" type="file" accept="application/pdf,image/png,image/jpeg,image/webp" class="field" data-testid="evidence-file" @change="onFile">
         <span v-if="mode === 'demo'" class="font-medium">{{ $t('complete.fileDemo') }}</span>
       </label>
       <label v-if="kind !== 'none'" class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
@@ -46,11 +46,11 @@
         </label>
         <label class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
           {{ $t('complete.time') }}
-          <input id="complete-time" v-model.number="minutes" type="number" min="0" step="5" max="100000" class="field num" data-testid="complete-time">
+          <input id="complete-time" v-model.number="minutes" :aria-invalid="invalidField === 'complete-time' || undefined" :aria-describedby="invalidField === 'complete-time' ? 'complete-error' : undefined" type="number" min="0" step="5" max="100000" class="field num" data-testid="complete-time">
         </label>
       </div>
 
-      <p v-if="errorKey" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert">{{ $t(errorKey) }}</p>
+      <p v-if="errorKey" id="complete-error" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert">{{ $t(errorKey) }}</p>
 
       <div class="flex flex-wrap gap-2">
         <UiBtn variant="mint" :disabled="saving" data-testid="complete-submit" @click="submit">
@@ -97,6 +97,13 @@ const file = ref<File | null>(null)
 const date = ref(todayIso.value)
 const minutes = ref<number | ''>('')
 const errorKey = ref('')
+const FIELD_FOR: Record<string, string> = {
+  'complete.errorUrl': 'complete-url',
+  'complete.errorNote': 'complete-note',
+  'complete.errorFile': 'complete-file',
+  'complete.errorMinutes': 'complete-time',
+}
+const invalidField = computed(() => FIELD_FOR[errorKey.value] ?? '')
 const saving = ref(false)
 const celebrating = ref(0)
 const remaining = ref(0)
@@ -131,7 +138,10 @@ function validate(): string {
 
 function submit() {
   errorKey.value = validate()
-  if (errorKey.value) return
+  if (errorKey.value) {
+    nextTick(() => document.getElementById(invalidField.value)?.focus())
+    return
+  }
   const input: CompleteInput = {
     completedAt: date.value && date.value !== todayIso.value ? new Date(`${date.value}T12:00:00`).toISOString() : undefined,
     timeSpentMinutes: minutes.value === '' ? null : Number(minutes.value),

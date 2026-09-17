@@ -12,10 +12,9 @@ export default defineNuxtConfig({
     head: {
       title: 'Zero to Hero',
       meta: [
-        { name: 'description', content: 'Build a study trail, break it into milestones and tick them off one by one.' },
         { name: 'theme-color', content: '#5B3FE6' },
-        { property: 'og:title', content: 'Zero to Hero' },
-        { property: 'og:description', content: 'Study trails with milestones, evidence and friends.' },
+        { property: 'og:site_name', content: 'Zero to Hero' },
+        { property: 'og:type', content: 'website' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
@@ -51,6 +50,8 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    // Absolute URLs for hreflang alternates and og:url.
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     strategy: 'prefix_except_default',
     defaultLocale: 'en',
     locales: [

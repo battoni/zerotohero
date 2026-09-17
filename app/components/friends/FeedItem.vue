@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-start gap-3 text-sm" :data-testid="`feed-${item.id}`">
-    <NuxtLink :to="localePath(`/u/${item.actor.handle}`)"><UiAvatar :profile="item.actor" :size="36" /></NuxtLink>
+    <NuxtLink :to="localePath(`/u/${item.actor.handle}`)" tabindex="-1" aria-hidden="true"><UiAvatar :profile="item.actor" :size="36" /></NuxtLink>
     <div class="flex min-w-0 flex-1 flex-col gap-1">
       <p>
         <NuxtLink :to="localePath(`/u/${item.actor.handle}`)" class="font-bold hover:underline">{{ isMe ? $t('friends.you') : (item.actor.displayName || item.actor.handle) }}</NuxtLink>
@@ -18,9 +18,9 @@
         <button
           v-if="!isMe"
           type="button"
-          class="rounded-full px-2 py-0.5 font-bold"
+          class="rounded-full px-2 py-1 font-bold"
           :class="item.kudosByMe ? 'bg-coral-soft text-coral' : 'text-coral hover:bg-coral-soft'"
-          :aria-pressed="item.kudosByMe"
+          :data-on="item.kudosByMe"
           :data-testid="`kudos-${item.id}`"
           @click="emit('kudos', item)"
         >

@@ -24,6 +24,7 @@
           v-for="l in otherLocales"
           :key="l.code"
           :to="switchLocalePath(l.code)"
+          :lang="l.language"
           class="rounded-full px-3 py-1.5 text-[13px] font-semibold text-muted hover:bg-surface"
           data-testid="locale-switch"
         >

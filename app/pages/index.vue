@@ -30,7 +30,7 @@
     <section class="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
       <div v-for="(step, i) in steps" :key="step" class="flex flex-col gap-2 rounded-card bg-surface p-5 shadow-soft">
         <span class="grid size-10 place-items-center rounded-xl text-lg font-black" :class="stepColors[i]">{{ i + 1 }}</span>
-        <h3 class="text-lg font-extrabold">{{ $t(`landing.steps.${step}.title`) }}</h3>
+        <h2 class="text-lg font-extrabold">{{ $t(`landing.steps.${step}.title`) }}</h2>
         <p class="text-muted">{{ $t(`landing.steps.${step}.body`) }}</p>
       </div>
     </section>
