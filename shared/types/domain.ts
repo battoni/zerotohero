@@ -1,7 +1,6 @@
 // Domain types the screens work with, independent of where data comes from.
 import type { TrackColor, TrackVisibility } from '../utils/track-list'
 
-export type { TrackColor, TrackVisibility }
 export type EvidenceKind = 'link' | 'note' | 'file' | 'certificate'
 export type ActivityType = 'milestone_completed' | 'track_completed' | 'track_started' | 'track_followed'
 export type Locale = 'en' | 'pt-BR'

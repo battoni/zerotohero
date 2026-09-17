@@ -4,10 +4,12 @@ import type { Profile } from '~~/shared/types/domain'
 export function useSession() {
   const mode = useDataMode()
   const demoCookie = useCookie<string>('zth_demo', { default: () => '', sameSite: 'lax', maxAge: 60 * 60 * 24 * 30 })
+  // Shared state is the source of truth within the app; the cookie carries it across reloads and SSR.
+  const demoSession = useState<boolean>('zth-demo-session', () => demoCookie.value === '1')
   const user = useSupabaseUser()
   const me = useState<Profile | null>('me', () => null)
 
-  const loggedIn = computed(() => (mode === 'demo' ? demoCookie.value === '1' : !!user.value))
+  const loggedIn = computed(() => (mode === 'demo' ? demoSession.value : !!user.value))
 
   async function loadMe(force = false): Promise<Profile | null> {
     if (!loggedIn.value) {
@@ -20,12 +22,16 @@ export function useSession() {
   }
 
   function enterDemo() {
+    demoSession.value = true
     demoCookie.value = '1'
   }
 
   async function signOut() {
     me.value = null
-    if (mode === 'demo') demoCookie.value = ''
+    if (mode === 'demo') {
+      demoSession.value = false
+      demoCookie.value = ''
+    }
     else await useSupabaseClient().auth.signOut()
   }
 

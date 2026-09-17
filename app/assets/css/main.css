@@ -88,6 +88,17 @@
   .cover-mint { background: linear-gradient(135deg, #0FA878, #4FD1A0); }
   .cover-sun { background: linear-gradient(135deg, #F59E0B, #FFC94D); }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .field {
+    border-radius: 12px;
+    background: var(--surface-2);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    width: 100%;
+  }
+  .field::placeholder { color: var(--muted); opacity: .8; }
+  .label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
 }
 
 @media (prefers-reduced-motion: reduce) {

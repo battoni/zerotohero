@@ -6,13 +6,10 @@
           {{ $t('landing.title') }}
         </h1>
         <p class="mt-5 max-w-[46ch] text-lg text-muted">{{ $t('landing.lede') }}</p>
-        <NuxtLink
-          :to="localePath(user ? '/tracks' : '/login')"
-          class="mt-7 inline-block rounded-full bg-violet px-6 py-3 font-bold text-on-color"
-          data-testid="landing-cta"
-        >
-          {{ $t('landing.cta') }}
-        </NuxtLink>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <UiBtn variant="primary" :to="localePath(loggedIn ? '/tracks' : '/login')" data-testid="landing-cta">{{ $t('landing.cta') }}</UiBtn>
+          <UiBtn v-if="mode === 'demo' && !loggedIn" data-testid="landing-demo" @click="demo">{{ $t('landing.demo') }}</UiBtn>
+        </div>
       </div>
       <div class="rounded-[28px] bg-surface p-5 shadow-soft" aria-hidden="true">
         <svg viewBox="0 0 520 300" fill="none" class="block h-auto w-full">
@@ -23,6 +20,7 @@
           <circle cx="200" cy="170" r="16" fill="var(--mint)" />
           <circle cx="330" cy="100" r="18" fill="var(--surface)" stroke="var(--violet)" stroke-width="6" />
           <circle cx="410" cy="100" r="14" fill="var(--surface)" stroke="var(--surface-2)" stroke-width="5" />
+          <text x="330" y="146" text-anchor="middle" font-family="Figtree, system-ui, sans-serif" font-weight="800" font-size="15" fill="var(--violet)">{{ $t('landing.hereLabel') }}</text>
           <circle cx="480" cy="40" r="24" fill="var(--sun)" />
           <path d="M470 40 l7 7 13-14" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -40,8 +38,13 @@
 </template>
 
 <script setup lang="ts">
-const user = useSupabaseUser()
+const { mode, loggedIn, enterDemo } = useSession()
 const localePath = useLocalePath()
+
+async function demo() {
+  enterDemo()
+  await navigateTo(localePath('/tracks'))
+}
 const steps = ['create', 'split', 'tick', 'share'] as const
 const stepColors = ['bg-violet-soft text-violet', 'bg-sky-soft text-sky', 'bg-mint-soft text-mint', 'bg-coral-soft text-coral']
 </script>
