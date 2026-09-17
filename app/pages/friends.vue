@@ -66,7 +66,7 @@ useHead({ title: () => t('friends.title') })
 const { data: feed, error: feedError, refresh: refreshFeed } = useAsyncData('feed', async () => {
   await loadMe()
   return repo.feed()
-}, { server: false })
+}, { server: false, deep: true })
 const { data: lists, refresh: refreshLists } = useAsyncData('friend-lists', () => repo.friends(), { server: false })
 
 const query = ref('')

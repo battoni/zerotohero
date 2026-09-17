@@ -110,7 +110,7 @@ const localePath = useLocalePath()
 const { t, locale } = useI18n()
 const id = computed(() => String(route.params.id))
 
-const { data: track, error, refresh } = useAsyncData(() => `track-${id.value}`, () => repo.getTrack(id.value), { server: false, watch: [id] })
+const { data: track, error, refresh } = useAsyncData(() => `track-${id.value}`, () => repo.getTrack(id.value), { server: false, watch: [id], deep: true })
 useHead({ title: () => track.value?.title ?? t('nav.myTracks') })
 
 const bursts = reactive<Record<string, number>>({})
