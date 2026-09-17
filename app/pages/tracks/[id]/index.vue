@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-5 pt-4">
-    <UiState :pending="track === undefined && !error" :error="error" :message="$t('track.loadError')" :rows="4" @retry="refresh">
+    <UiState :pending="track === undefined && !error" :error="track ? null : error" :message="$t('track.loadError')" :rows="4" @retry="refresh">
       <div v-if="!track" class="flex flex-col items-start gap-3 rounded-card bg-surface p-6 shadow-soft" data-testid="track-not-found">
         <p class="font-semibold">{{ $t('track.notFound') }}</p>
         <UiBtn :to="localePath('/tracks')">{{ $t('track.back') }}</UiBtn>
@@ -197,9 +197,9 @@ async function applyToggle(m: Milestone) {
     busy.value = false
     return
   }
-  busy.value = false
-  // The write went through; a failed reload is not a failed toggle.
+  // The write went through; a failed reload is not a failed toggle. Stay busy until it settles.
   await refresh()
+  busy.value = false
 }
 
 function openSheet(m: Milestone) {

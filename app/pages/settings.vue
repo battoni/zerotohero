@@ -24,7 +24,7 @@
         <label class="label" for="settings-handle">{{ $t('welcome.handle') }}</label>
         <input
           id="settings-handle" v-model="handle" class="field" maxlength="20"
-          :aria-invalid="!!errorKey || undefined" :aria-describedby="errorKey ? 'settings-handle-hint settings-error' : 'settings-handle-hint'"
+          :aria-invalid="handleError || undefined" :aria-describedby="handleError ? 'settings-handle-hint settings-error' : 'settings-handle-hint'"
           data-testid="settings-handle"
         >
         <span id="settings-handle-hint" class="text-[13px] font-medium text-muted">{{ $t('welcome.handleHint') }}</span>
@@ -78,6 +78,7 @@ useHead({ title: () => t('settings.title') })
 const handle = ref('')
 const name = ref('')
 const errorKey = ref('')
+const handleError = computed(() => errorKey.value === 'welcome.errorHandle' || errorKey.value === 'welcome.errorTaken')
 const saving = ref(false)
 const saved = ref(false)
 const resetDone = ref(false)

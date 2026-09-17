@@ -1,7 +1,6 @@
 {
   "app": {
-    "name": "Zero to Hero",
-    "tagline": "Build a study trail, break it into milestones and tick them off one by one."
+    "name": "Zero to Hero"
   },
   "nav": {
     "myTracks": "My trails",
@@ -82,7 +81,6 @@
       "public": "Public trail"
     },
     "copiedTimes": "copied {count} time | copied {count} times",
-    "copiedFrom": "Copied from a template",
     "edit": "Edit",
     "delete": "Delete",
     "deleteConfirm": "Delete this trail and all its progress?",
@@ -232,7 +230,6 @@
     "milestones": "{count} milestone | {count} milestones",
     "usedBy": "used by {count} person | used by {count} people",
     "use": "Use as template",
-    "copying": "Copying…",
     "empty": "Nothing here yet. Try another search.",
     "yours": "Yours",
     "filtersLabel": "Order and filter",
@@ -268,8 +265,7 @@
     "searchLabel": "Find people",
     "removeTitle": "Remove {name} from your friends?",
     "removeYes": "Yes, remove",
-    "cancelRequest": "Cancel request",
-    "profileOf": "Profile of {name}"
+    "cancelRequest": "Cancel request"
   },
   "profile": {
     "trailsActive": "{count} active trail | {count} active trails",
@@ -315,9 +311,6 @@
     "demoResetTitle": "Reset the demo?",
     "demoResetBody": "Everything you changed in the demo will be lost.",
     "demoResetYes": "Yes, reset"
-  },
-  "time": {
-    "justNow": "just now"
   },
   "common": {
     "loading": "Loading…",

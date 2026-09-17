@@ -94,6 +94,12 @@ describe('trails', () => {
     expect(await completedEvents()).toHaveLength(0)
     await repo.updateTrack(id, { ...done, phases: [{ id: t.phases[0]!.id, title: 'P', milestones: kept }] })
     expect(await completedEvents()).toHaveLength(1)
+
+    // A later completed milestone moves the event forward instead of adding one.
+    const later = '2026-09-12T10:00:00.000Z'
+    await repo.updateTrack(id, { ...done, phases: [{ id: t.phases[0]!.id, title: 'P', milestones: [...kept, { title: 'd', tag: null, dueDate: null, completedAt: later }] }] })
+    const events = await completedEvents()
+    expect(events.map(e => e.createdAt)).toEqual([later])
   })
 
   it('rejects completion dates in the future (third review, finding 5)', async () => {
@@ -184,6 +190,16 @@ describe('social', () => {
     expect((await repo.friends()).friends.map(f => f.handle)).toContain('bruno')
     await repo.removeFriend(bruno.id)
     expect((await repo.friends()).friends.map(f => f.handle)).not.toContain('bruno')
+  })
+
+  it('cancels only a pending request I sent (eighth review)', async () => {
+    const [carla] = await repo.searchProfiles('@car')
+    await repo.requestFriend(carla!.id)
+    await repo.cancelRequest(carla!.id)
+    expect((await repo.friends()).outgoing).toHaveLength(0)
+    const ana = (await repo.friends()).friends.find(f => f.handle === 'ana')!
+    await expect(repo.cancelRequest(ana.id)).rejects.toMatchObject({ code: 'not_found' })
+    expect((await repo.friends()).friends.map(f => f.handle)).toContain('ana')
   })
 
   it('cheers a friend but not yourself', async () => {

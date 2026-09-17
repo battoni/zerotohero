@@ -53,7 +53,11 @@ function onClosed() {
   nextTick(() => {
     if (target?.isConnected) target.focus()
     // The opener can disappear (e.g. "complete next" once the trail is done): land on the page heading.
-    else document.querySelector<HTMLElement>('main h1')?.focus()
+    else {
+      const heading = document.querySelector<HTMLElement>('main h1')
+      if (heading && !heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1')
+      heading?.focus()
+    }
   })
 }
 

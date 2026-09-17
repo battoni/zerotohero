@@ -29,6 +29,8 @@ export interface DataRepository {
   requestFriend(userId: string): Promise<void>
   respondFriend(userId: string, accept: boolean): Promise<void>
   removeFriend(userId: string): Promise<void>
+  /** Withdraws a request I sent that is still pending. */
+  cancelRequest(userId: string): Promise<void>
   feed(): Promise<FeedItem[]>
   setKudos(activityId: string, on: boolean): Promise<void>
 

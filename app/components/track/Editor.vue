@@ -317,6 +317,8 @@ function applyPaste() {
   if (!parsed.value) return
   sourceId.value = null
   fillFrom(parsed.value.track)
+  // Applied lists live in the form now; save must not re-apply over later edits.
+  pasted.value = ''
 }
 
 // Arriving from Explore (?from=…): prefill from that template once, unless a draft already exists.
@@ -360,7 +362,6 @@ function save() {
   // A pasted list that wasn't applied yet is what the user means to save.
   if (isNew.value && start.value === 'paste' && parsedCount.value) {
     applyPaste()
-    pasted.value = ''
   }
   if (!form.title.trim()) {
     errorKey.value = 'editor.errorTitle'

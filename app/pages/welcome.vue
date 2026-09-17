@@ -9,7 +9,7 @@
         {{ $t('welcome.handle') }}
         <span class="flex items-center gap-1 rounded-xl bg-surface-2 pl-3">
           <span class="font-bold text-muted">@</span>
-          <input id="welcome-handle" v-model="handle" class="field pl-0" autocomplete="username" maxlength="20" :aria-invalid="!!errorKey || undefined" :aria-describedby="errorKey ? 'welcome-handle-hint welcome-error' : 'welcome-handle-hint'" data-testid="welcome-handle">
+          <input id="welcome-handle" v-model="handle" class="field pl-0" autocomplete="username" maxlength="20" :aria-invalid="handleError || undefined" :aria-describedby="handleError ? 'welcome-handle-hint welcome-error' : 'welcome-handle-hint'" data-testid="welcome-handle">
         </span>
       </label>
       <span id="welcome-handle-hint" class="-mt-2 text-[13px] font-medium text-muted">{{ $t('welcome.handleHint') }}</span>
@@ -51,6 +51,7 @@ const handle = ref('')
 const name = ref('')
 const lang = ref<Locale>(locale.value as Locale)
 const errorKey = ref('')
+const handleError = computed(() => errorKey.value === 'welcome.errorHandle' || errorKey.value === 'welcome.errorTaken')
 const saving = ref(false)
 
 onMounted(async () => {

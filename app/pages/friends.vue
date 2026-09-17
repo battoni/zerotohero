@@ -155,7 +155,7 @@ async function toggleKudos(item: FeedItem) {
 }
 
 const add = (id: string) => act(() => repo.requestFriend(id))
-const cancelRequest = (id: string) => act(() => repo.removeFriend(id))
+const cancelRequest = (id: string) => act(() => repo.cancelRequest(id))
 const respond = (id: string, accept: boolean) => act(() => repo.respondFriend(id, accept))
 async function confirmRemove() {
   const p = pendingRemove.value

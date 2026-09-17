@@ -23,7 +23,7 @@ describe('supabase error mapping', () => {
     ['P0002', 'not_found'],
     ['23503', 'not_found'],
     ['PGRST116', 'not_found'],
-    ['PGRST100', 'not_found'],
+    ['PGRST100', 'network'],
     ['42501', 'forbidden'],
     ['PGRST301', 'network'],
     ['08006', 'network'],

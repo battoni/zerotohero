@@ -237,13 +237,15 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
   // Mirrors sync_track_completed: at most one track_completed, only while every milestone is done.
   const syncCompleted = (t: StoredTrack) => {
     const all = milestonesOf(t)
-    const has = state.activities.some(a => a.trackId === t.id && a.type === 'track_completed')
+    const existing = state.activities.find(a => a.trackId === t.id && a.type === 'track_completed')
     const done = all.length > 0 && all.every(x => x.completedAt)
-    if (done && !has) {
+    if (done) {
+      // Dated at the last completion; an existing event moves forward and keeps its cheers.
       const last = all.map(x => x.completedAt!).sort().at(-1)!
-      state.activities.push({ id: newId('a'), type: 'track_completed', actorId: t.ownerId, trackId: t.id, milestoneId: null, createdAt: last })
+      if (existing) existing.createdAt = last
+      else state.activities.push({ id: newId('a'), type: 'track_completed', actorId: t.ownerId, trackId: t.id, milestoneId: null, createdAt: last })
     }
-    else if (!done && has) {
+    else if (existing) {
       dropActivities(a => a.trackId === t.id && a.type === 'track_completed')
     }
   }
@@ -401,6 +403,8 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
           }),
         }
       })
+      // New milestones that arrive already done get their activity, as the insert trigger does.
+      for (const m of milestonesOf(t).filter(x => x.completedAt && !existing.has(x.id))) recordCompletion(t, m)
       const removed = [...existing.keys()].filter(k => !kept.has(k))
       dropActivities(a => a.milestoneId !== null && removed.includes(a.milestoneId))
       state.evidences = state.evidences.filter(e => !removed.includes(e.milestoneId))
@@ -552,6 +556,13 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       if (!f) throw new RepoError('not_found')
       if (accept) f.status = 'accepted'
       else state.friendships = state.friendships.filter(x => x !== f)
+      persist()
+    },
+
+    async cancelRequest(userId) {
+      const f = state.friendships.find(x => x.requesterId === state.meId && x.addresseeId === userId && x.status === 'pending')
+      if (!f) throw new RepoError('not_found')
+      state.friendships = state.friendships.filter(x => x !== f)
       persist()
     },
 

@@ -26,8 +26,8 @@ export function fail(error: PgError | null): void {
   if (error.code === '23505') throw new RepoError('handle_taken', error.message)
   // Check violations and malformed values (bad uuid, date, enum) are input problems.
   if (error.code === '23514' || error.code?.startsWith('22')) throw new RepoError('invalid', error.message)
-  // A reference that is gone (23503) or hidden, and PostgREST's "no rows" / unknown filter target.
-  if (error.code === 'P0002' || error.code === '23503' || error.code === 'PGRST116' || error.code?.startsWith('PGRST1')) throw new RepoError('not_found', error.message)
+  // A reference that is gone (23503) or hidden, and PostgREST's "no rows".
+  if (error.code === 'P0002' || error.code === '23503' || error.code === 'PGRST116') throw new RepoError('not_found', error.message)
   if (error.code === '42501') throw new RepoError('forbidden', error.message)
   throw new RepoError('network', error.message)
 }
@@ -401,6 +401,14 @@ export function createSupabaseRepository(client: Client): DataRepository {
         fail(error)
         if (!data?.length) throw new RepoError('not_found')
       }
+    },
+
+    async cancelRequest(userId) {
+      const me = await uid()
+      const { data, error } = await client.from('friendships').delete()
+        .eq('requester_id', me).eq('addressee_id', userId).eq('status', 'pending').select('addressee_id')
+      fail(error)
+      if (!data?.length) throw new RepoError('not_found')
     },
 
     async removeFriend(userId) {

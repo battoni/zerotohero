@@ -1,7 +1,6 @@
 {
   "app": {
-    "name": "Zero to Hero",
-    "tagline": "Monte uma trilha de estudo, quebre em marcos e vá riscando um por um."
+    "name": "Zero to Hero"
   },
   "nav": {
     "myTracks": "Minhas trilhas",
@@ -82,7 +81,6 @@
       "public": "Trilha pública"
     },
     "copiedTimes": "copiada {count} vez | copiada {count} vezes",
-    "copiedFrom": "Copiada de um modelo",
     "edit": "Editar",
     "delete": "Excluir",
     "deleteConfirm": "Excluir esta trilha e todo o progresso?",
@@ -232,7 +230,6 @@
     "milestones": "{count} marco | {count} marcos",
     "usedBy": "usada por {count} pessoa | usada por {count} pessoas",
     "use": "Usar como modelo",
-    "copying": "Copiando…",
     "empty": "Nada por aqui ainda. Tente outra busca.",
     "yours": "Sua",
     "filtersLabel": "Ordenar e filtrar",
@@ -268,8 +265,7 @@
     "searchLabel": "Encontrar pessoas",
     "removeTitle": "Remover {name} dos seus amigos?",
     "removeYes": "Sim, remover",
-    "cancelRequest": "Cancelar pedido",
-    "profileOf": "Perfil de {name}"
+    "cancelRequest": "Cancelar pedido"
   },
   "profile": {
     "trailsActive": "{count} trilha ativa | {count} trilhas ativas",
@@ -315,9 +311,6 @@
     "demoResetTitle": "Reiniciar a demo?",
     "demoResetBody": "Tudo o que você mudou na demo será perdido.",
     "demoResetYes": "Sim, reiniciar"
-  },
-  "time": {
-    "justNow": "agora mesmo"
   },
   "common": {
     "loading": "Carregando…",
