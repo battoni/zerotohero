@@ -152,6 +152,8 @@ describe('trails', () => {
     const copy = (await repo.getTrack(copyId))!
     expect(copy).toMatchObject({ ownerId: DEMO_ME, visibility: 'private', sourceTrackId: src!.id, done: 0, total: src!.total })
     expect((await repo.explore({ search: 'aws' }))[0]!.copiesCount).toBe(before + 1)
+    await repo.copyTrack(src!.id)
+    expect((await repo.explore({ search: 'aws' }))[0]!.copiesCount).toBe(before + 1)
   })
 
   it('hides private trails and friends-only trails from non-friends', async () => {

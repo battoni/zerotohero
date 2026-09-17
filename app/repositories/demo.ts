@@ -259,7 +259,8 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
   const validate = (input: TrackInput) => {
     const latest = now().getTime() + DAY
     if (!input.title.trim() || [...input.title].length > 80) throw new RepoError('invalid', 'title')
-    if (!input.phases.length) throw new RepoError('invalid', 'phases')
+    if (!input.phases.length || input.phases.length > 20) throw new RepoError('invalid', 'phases')
+    if (input.phases.reduce((n, p) => n + p.milestones.length, 0) > 200) throw new RepoError('invalid', 'milestones')
     for (const p of input.phases) {
       if (!p.title.trim()) throw new RepoError('invalid', 'phase_title')
       for (const m of p.milestones) {
@@ -492,6 +493,8 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       const src = trackById(id)
       if (!src || !canView(src)) throw new RepoError('not_found')
       const newTrackId = newId('t')
+      // Popularity counts people: only my first copy of a trail counts (as in copy_track).
+      const first = !state.tracks.some(t => t.ownerId === state.meId && t.sourceTrackId === src.id)
       const copy: StoredTrack = {
         ...clone(src),
         id: newTrackId,
@@ -511,7 +514,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
         }),
       }
       state.tracks.push(copy)
-      src.copiesCount += 1
+      if (first) src.copiesCount += 1
       persist()
       return newTrackId
     },

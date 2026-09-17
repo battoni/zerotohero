@@ -96,6 +96,8 @@ activity_type    : milestone_completed | track_completed | track_started | track
 - `url` (nulo), `body` (nulo), `learned` (nulo), `storage_path` (nulo)
 - `created_at`
 - Regra: `link` e `certificate` exigem `url` ou `storage_path`; `file` exige `storage_path`; `note` exige `body`.
+- `storage_path` é exatamente `{owner}/{milestone}/{arquivo}`, sem `..` nem subpastas: a URL do storage é normalizada, e um `../` levaria a outra pasta.
+- Uma trilha tem no máximo 20 fases e 200 marcos, também no banco.
 
 **`friendships`**
 - `requester_id`, `addressee_id`, `status`, `created_at`, `responded_at`
@@ -119,7 +121,7 @@ activity_type    : milestone_completed | track_completed | track_started | track
 - **`can_view_track(t tracks) → bool`**: verdadeiro se o usuário é o dono, se a trilha é `public`, ou se é `friends` e `are_friends(owner, auth.uid())`.
 - **`copy_track(source uuid) → uuid`**: exige `can_view_track`.
   - Copia a trilha, as fases e os marcos **sem** `completed_at`, `time_spent_minutes` e evidências.
-  - A cópia nasce `private`, com `source_track_id` preenchido, e incrementa `copies_count` na origem.
+  - A cópia nasce `private`, com `source_track_id` preenchido, e incrementa `copies_count` na origem só na primeira cópia de cada pessoa (o contador mede pessoas, não chamadas).
 - **`track_progress`** (view): `track_id`, `total`, `done`, `next_milestone_id`, `next_milestone_title`, `last_completed_at`.
 
 ### Triggers

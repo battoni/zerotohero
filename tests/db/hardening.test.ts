@@ -230,3 +230,38 @@ describe('reopen_milestone (fourth review, finding 3)', () => {
       .rejects.toThrow(/not found/)
   })
 })
+
+describe('ninth review', () => {
+  it('rejects storage paths with dot segments or extra folders', async () => {
+    const [{ create_track: id }] = await asUser(db, attacker, tx => rows<{ create_track: string }>(tx, 'select public.create_track($1)', [JSON.stringify({
+      title: 'Paths', phases: [{ title: 'P', milestones: [{ title: 'a' }, { title: 'b' }] }],
+    })])) as [{ create_track: string }]
+    const [a, b] = await rows<{ id: string }>(db, 'select id from public.milestones where track_id = $1 order by position', [id])
+    const evil = `${attacker}/${a!.id}/../../${victim}/${victimMilestone}/secret.pdf`
+    await expect(asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, $2)', [a!.id, JSON.stringify({ kind: 'file', storage_path: evil })])))
+      .rejects.toThrow(/evidence_storage_path_scope/)
+    await expect(asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, $2)', [a!.id, JSON.stringify({ kind: 'file', storage_path: `${attacker}/${a!.id}/x/y.pdf` })])))
+      .rejects.toThrow(/evidence_storage_path_scope/)
+    await asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, $2)', [b!.id, JSON.stringify({ kind: 'file', storage_path: `${attacker}/${b!.id}/1726540000-cert.v2.pdf` })]))
+  })
+
+  it('caps a trail at 200 milestones', async () => {
+    const milestones = Array.from({ length: 201 }, (_, i) => ({ title: `m${i}` }))
+    await expect(asUser(db, attacker, tx => tx.query('select public.create_track($1)', [JSON.stringify({ title: 'Huge', phases: [{ title: 'P', milestones }] })])))
+      .rejects.toThrow(/at most 200 milestones/)
+  })
+
+  it('counts one use per person, however many copies they make', async () => {
+    const before = (await rows<{ copies_count: number }>(db, 'select copies_count from public.tracks where id = $1', [victimPublic]))[0]!.copies_count
+    const copier = await createUser(db, 'copier')
+    for (let i = 0; i < 3; i++) await asUser(db, copier, tx => tx.query('select public.copy_track($1)', [victimPublic]))
+    const [after] = await rows<{ copies_count: number }>(db, 'select copies_count from public.tracks where id = $1', [victimPublic])
+    expect(after!.copies_count).toBe(before + 1)
+  })
+
+  it('keeps internal functions out of reach of API roles', async () => {
+    await expect(asUser(db, attacker, tx => tx.query('select public.sync_track_completed($1)', [victimPublic]))).rejects.toThrow(/permission denied/)
+    const [anonCan] = await rows<{ can: boolean }>(db, `select has_function_privilege('anon', 'public.reopen_milestone(uuid)', 'execute') as can`)
+    expect(anonCan!.can).toBe(false)
+  })
+})

@@ -23,11 +23,12 @@ const SUPABASE_STUB = `
   grant usage on schema auth to anon, authenticated;
 `
 
+// Like Supabase: API roles get default privileges up front, so a migration's
+// `revoke ... from anon, authenticated` still holds afterwards.
 const GRANTS = `
   grant usage on schema public to anon, authenticated;
-  grant select, insert, update, delete on all tables in schema public to authenticated;
-  grant select on all tables in schema public to anon;
-  grant execute on all functions in schema public to authenticated;
+  alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated;
+  alter default privileges in schema public grant execute on functions to anon, authenticated;
 `
 
 export type Db = PGlite
@@ -35,11 +36,11 @@ export type Db = PGlite
 export async function createDb(): Promise<Db> {
   const db = new PGlite({ extensions: { citext } })
   await db.exec(SUPABASE_STUB)
+  await db.exec(GRANTS)
   const files = readdirSync(MIGRATIONS).filter(f => f.endsWith('.sql') && !f.includes('storage')).sort()
   for (const f of files) {
     await db.exec(readFileSync(join(MIGRATIONS, f), 'utf8'))
   }
-  await db.exec(GRANTS)
   return db
 }
 

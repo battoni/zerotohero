@@ -3,6 +3,7 @@
 // only after that does the service role sign the private storage object.
 import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 
+const SAFE_FILE = /^\w[\w.-]{0,119}$/
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default defineEventHandler(async (event) => {
@@ -14,7 +15,9 @@ export default defineEventHandler(async (event) => {
   if (error) throw createError({ statusCode: 500, statusMessage: 'Lookup failed' })
   if (!data?.storage_path) throw createError({ statusCode: 404, statusMessage: 'Not found' })
   // The database enforces this too; never sign a path outside the evidence owner's folder.
-  if (!data.storage_path.startsWith(`${data.owner_id}/${data.milestone_id}/`)) {
+  // No dot segments: the storage URL is normalized, so "../" would climb into another folder.
+  const [owner, milestone, file, ...rest] = data.storage_path.split('/')
+  if (owner !== data.owner_id || milestone !== data.milestone_id || rest.length || !file || !SAFE_FILE.test(file) || file.includes('..')) {
     throw createError({ statusCode: 404, statusMessage: 'Not found' })
   }
 

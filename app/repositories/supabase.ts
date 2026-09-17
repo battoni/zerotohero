@@ -280,7 +280,7 @@ export function createSupabaseRepository(client: Client): DataRepository {
       // Upload first; the RPC then completes the milestone and records the evidence atomically.
       let storagePath: string | null = null
       if (ev?.file) {
-        const safeName = ev.file.name.replace(/[^\w.-]+/g, '_').slice(-80)
+        const safeName = ev.file.name.replace(/[^\w.-]+/g, '_').replace(/\.{2,}/g, '.').slice(-80)
         storagePath = `${me}/${milestoneId}/${Date.now()}-${safeName}`
         const { error: upError } = await client.storage.from('evidence').upload(storagePath, ev.file, { contentType: ev.file.type })
         if (upError) throw new RepoError('network', upError.message)
