@@ -1,6 +1,6 @@
 # Zero to Hero — Spec do MVP
 
-Atualizado: 2026-09-16 · status: **aprovada para implementação**
+Atualizado: 2026-09-17 · status: **MVP implementado na branch `feature/mvp`** (ver §9)
 
 > **O produto em uma frase:** qualquer pessoa cria uma trilha de estudo, divide em fases e marcos, e vai concluindo cada marco. Pode anexar evidências, usar trilhas públicas como modelo e acompanhar amigos.
 
@@ -140,7 +140,7 @@ activity_type    : milestone_completed | track_completed | track_started | track
 | phases, milestones | `can_view_track` da trilha | só o dono da trilha |
 | evidences | `can_view_track` da trilha | só o dono |
 | friendships | as duas partes | insert: o requester; update (aceitar): o addressee; delete: qualquer das partes |
-| track_follows | o próprio, ou o dono da trilha | o próprio, e só se `can_view_track` |
+| track_follows | quem pode ver a trilha (a tela mostra os seguidores) | o próprio, e só se `can_view_track` |
 | activities | o próprio, ou amigos, e só se `can_view_track` da trilha | ninguém (só trigger) |
 | kudos | quem pode ver a atividade | o próprio, e só se pode ver a atividade e não é o autor |
 
@@ -189,15 +189,27 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
   - `@nuxtjs/i18n` para idiomas.
   - Tailwind 4 (`@tailwindcss/vite`) com os tokens do protótipo em `@theme`.
 - **Leituras:** direto do cliente Supabase, protegidas pela RLS.
-- **Escritas compostas** (criar trilha com fases e marcos, copiar modelo, upload de evidência): em **server routes** (`server/api/*`) que usam o cliente com a sessão do usuário. Nada roda com a secret key no caminho do usuário.
+- **Escritas compostas** vão por **RPCs SQL**, não por server routes: `create_track(payload)`, `update_track(id, payload)` e `copy_track(source)`.
+  - São atômicas numa chamada, rodam sob a RLS do usuário (as duas primeiras são `security invoker`) e são testadas no PGlite.
+  - O upload de evidência vai direto do cliente para o Storage, na pasta do próprio usuário.
+  - Nada roda com a secret key no caminho do usuário.
+- **Dados carregados no cliente** (`useAsyncData({ server: false })`). O SSR renderiza o esqueleto da página; SSR com dados fica para depois.
+- **Camada de dados:** a interface `DataRepository` (`app/repositories/types.ts`) tem duas implementações.
+  - `supabase.ts`.
+  - `demo.ts`: em memória no navegador, semeado por `seed/demo/*.md` e persistido no `localStorage`.
+- **Modo demo** (`NUXT_PUBLIC_DATA_MODE=demo`, o padrão quando não há URL do Supabase):
+  - roda o app inteiro sem backend;
+  - entra-se pelo botão "Ver a demo" na landing ou no login;
+  - a proteção de rotas fica em `app/middleware/auth.global.ts` e vale para os dois modos.
 - **Pastas:**
   - `app/components/<área>/`
   - `app/composables/`
   - `app/pages/`
-  - `shared/` (parser, tipos, validação com zod)
-  - `server/api/`
+  - `app/repositories/`
+  - `shared/` (parser, progresso, tipos)
   - `supabase/migrations/`
   - `seed/`
+  - `scripts/`
 - **Tokens de design** (do protótipo aprovado): Figtree 400–900, IBM Plex Mono só para números, cinco cores de trilha com gradiente, cantos de 18–28px, sombras suaves, chips preenchidos, abas em pílula e tema claro e escuro. Respeitar `prefers-reduced-motion`.
 - **Acessibilidade:** o toggle de marco é um `button` com `aria-pressed` e o foco é visível.
 
@@ -205,9 +217,10 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 
 ## 6. Seed
 
-- **Comando:** `npm run seed`, usando `SUPABASE_SECRET_KEY` apenas no ambiente local.
+- **Comando:** `npm run seed`, usando `SUPABASE_SECRET_KEY` apenas no ambiente local. `npm run seed -- --dry-run` só lê os arquivos e mostra o plano.
   - É **idempotente**: usa ids determinísticos (uuid v5 a partir de `handle` + título).
-- **Usuários de demonstração:** Ana, Rafa e Lu, com senha só em dev. Recebem trilhas públicas (`seed/demo/*.md`), amizades aceitas com o dono, conclusões espalhadas nas últimas 20 semanas e kudos.
+- **Usuários de demonstração:** Ana, Rafa, Lu (handle `luiza`), Bruno, Carla e um usuário `e2e`, todos com e-mail `@demo.zerotohero.local` e a senha `SEED_DEMO_PASSWORD`.
+  - A persona "Alex" existe só no modo demo do navegador. Recebem trilhas públicas (`seed/demo/*.md`), amizades aceitas com o dono, conclusões espalhadas nas últimas 20 semanas e kudos.
 - **Dono:** `SEED_OWNER_EMAIL` aponta para o usuário real, que precisa ter feito login uma vez. As trilhas dele vêm de `seed/personal/*.md`, pasta que **fica fora do git**.
 - **Limpeza:** `npm run seed -- --reset` remove só o que o seed criou.
 
@@ -234,4 +247,25 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 | `NUXT_PUBLIC_SUPABASE_KEY` | `.env` e Vercel | Publishable key (pública por desenho) |
 | `SUPABASE_SECRET_KEY` | **só** `.env` local (seed) e, se necessário, variável de servidor na Vercel | Seed e rotinas de servidor. Nunca no bundle |
 | `SEED_OWNER_EMAIL` | `.env` local | Dono das trilhas pessoais do seed |
+| `SEED_DEMO_PASSWORD` | `.env` local | Senha dos usuários de demonstração e do usuário de E2E |
+| `SUPABASE_PROJECT_REF` | `.env` local | `npm run db:types` |
+| `NUXT_PUBLIC_DATA_MODE` | `.env` e Vercel | `demo` ou `supabase` (padrão: `supabase` se houver URL) |
+| `NUXT_PUBLIC_DEV_LOGIN` | `.env` (preview/E2E) | Mostra o login por senha fora do `nuxt dev` |
 | `NUXT_PUBLIC_SITE_URL` | `.env` e Vercel | Redirects de OAuth |
+
+---
+
+## 9. Estado da implementação (2026-09-17)
+
+**Feito**
+- **Banco:** as quatro migrations (profiles, core, storage, RPCs) e 28 testes de SQL/RLS no PGlite.
+- **Código compartilhado:** parser e serializador de lista, utilitários de progresso e os dois repositórios, com testes do parser, do progresso e do repositório demo.
+- **Telas:** todas as da §1, em EN e PT-BR, nos temas claro e escuro, funcionando a partir de 390px.
+- **Seed:** idempotente, com `--dry-run` e `--reset`.
+- **E2E:** 6 testes Playwright em modo demo.
+
+**Ainda não validado contra um Supabase real**
+- O repositório Supabase: queries PostgREST e upload no Storage.
+- A migration de storage (o PGlite não tem o schema `storage`).
+- O fluxo OAuth.
+- `npm run db:types`, que deve substituir o `shared/types/database.ts` escrito à mão.
