@@ -183,7 +183,7 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 - **Fases:** `## ` abre uma fase. Um marco antes da primeira fase cai na fase padrão.
 - **Marcos:** `- `, `* `, `+ `, `1.` ou `1)` abrem um marco, com `[ ]`, `[x]` ou `[X]` opcional; `[x]` já nasce concluído. Em modo estruturado, uma linha solta também vira marco.
 - **Tag e data:** `#tag` é a primeira hashtag que começa com letra, e sai do título (`#42` fica no título). `@AAAA-MM-DD` é a data do marco (`due_date`).
-  - Em marco já concluído, essa data vira `completed_at`. Data de conclusão no futuro (além de amanhã) gera `future_date` e é descartada.
+  - Em marco já concluído, essa data vira `completed_at`. Data de conclusão depois de hoje (no calendário local) gera `future_date` e é trocada pela de hoje.
 - **Colar texto simples:** sem título, fase, item de lista ou `>`, cada linha não vazia vira marco (tag e data continuam valendo).
 - **Limites:** até 20 fases e 200 marcos. Textos: título 80, objetivo 280, fase 60, marco 140, tag 24 (acima disso, cortado com `too_long`); emoji cortado em 8.
 - **Erros:** voltam como uma lista `{ line, code, value? }`, com códigos i18n.
