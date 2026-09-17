@@ -1,6 +1,8 @@
 // Plain-text trail format, shared by "Paste a list" and the seeder.
 // Spec: docs/spec-mvp.md §4. Pure functions — no Nuxt, no I/O.
 
+import { localIsoDate } from './dates'
+
 export const TRACK_COLORS = ['violet', 'coral', 'sky', 'mint', 'sun'] as const
 export const TRACK_VISIBILITIES = ['private', 'friends', 'public'] as const
 export type TrackColor = typeof TRACK_COLORS[number]
@@ -146,8 +148,8 @@ export interface ParseOptions {
 export function parseTrackList(input: string, options: ParseOptions = {}): ParseResult {
   const errors: ParseError[] = []
   const now = options.now === undefined ? new Date() : options.now
-  // One day of slack for time zones ahead of UTC.
-  const latestDone = now ? new Date(now.getTime() + 86_400_000).toISOString().slice(0, 10) : null
+  // Completion dates are the user's calendar days: nothing after today, local time.
+  const latestDone = now ? localIsoDate(now) : null
   const track: ParsedTrack = { title: null, goal: null, emoji: null, color: null, due: null, visibility: null, phases: [] }
   const lines = input.replace(/\r\n?/g, '\n').split('\n')
   const structured = isStructured(lines)

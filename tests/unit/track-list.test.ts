@@ -109,7 +109,7 @@ describe('parseTrackList', () => {
   })
 })
 
-describe('parseTrackList — third review', () => {
+describe('parseTrackList — tags, bare headings, meta case and future dates', () => {
   const now = new Date('2026-09-17T12:00:00Z')
   it('keeps numeric hashtags in the title', () => {
     const { track } = parseTrackList('- Fix issue #42 #bug', { now })
@@ -127,9 +127,10 @@ describe('parseTrackList — third review', () => {
     expect(track.phases[0]!.milestones.map(m => m.title)).toEqual(['Due: finish reading', 'b'])
   })
   it('flags completion dates in the future and drops them', () => {
-    const { track, errors } = parseTrackList('- [x] done @2026-09-18\n- [x] later @2026-10-01\n- [ ] due @2026-12-01', { now })
-    expect(errors).toEqual([{ line: 2, code: 'future_date', value: '2026-10-01' }])
-    expect(track.phases[0]!.milestones.map(m => m.date)).toEqual(['2026-09-18', null, '2026-12-01'])
+    // now is midday UTC, so "today" is 2026-09-17 in every zone from UTC-11 to UTC+11.
+    const { track, errors } = parseTrackList('- [x] done @2026-09-17\n- [x] tomorrow @2026-09-18\n- [ ] due @2026-12-01', { now })
+    expect(errors).toEqual([{ line: 2, code: 'future_date', value: '2026-09-18' }])
+    expect(track.phases[0]!.milestones.map(m => m.date)).toEqual(['2026-09-17', null, '2026-12-01'])
   })
   it('can skip the future check', () => {
     expect(parseTrackList('- [x] later @2030-01-01', { now: null }).errors).toEqual([])

@@ -42,7 +42,7 @@
       <div class="grid gap-3 sm:grid-cols-2">
         <label class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
           {{ $t('complete.date') }}
-          <input id="complete-date" v-model="date" type="date" :max="todayIso" class="field num" data-testid="complete-date">
+          <input id="complete-date" v-model="date" :aria-invalid="invalidField === 'complete-date' || undefined" :aria-describedby="invalidField === 'complete-date' ? 'complete-error' : undefined" type="date" :max="todayIso" class="field num" data-testid="complete-date">
         </label>
         <label class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
           {{ $t('complete.time') }}
@@ -76,6 +76,7 @@
 
 <script setup lang="ts">
 import type { CompleteInput, EvidenceKind, Milestone } from '~~/shared/types/domain'
+import { completionAt, isFutureDate, localIsoDate } from '~~/shared/utils/dates'
 
 const props = defineProps<{ open: boolean, milestone: Milestone | null, remainingAfter: number }>()
 const emit = defineEmits<{ close: [], submit: [input: CompleteInput, done: (ok: boolean) => void] }>()
@@ -85,7 +86,7 @@ const { t } = useI18n()
 type Kind = EvidenceKind | 'none'
 const kinds: Kind[] = ['link', 'note', 'file', 'certificate', 'none']
 // Local calendar date (toISOString would give tomorrow in the evening west of UTC).
-const localIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+const localIso = localIsoDate
 // Recomputed on every open: a tab left open past midnight must not stay on yesterday.
 const todayIso = ref(localIso(new Date()))
 
@@ -102,6 +103,7 @@ const FIELD_FOR: Record<string, string> = {
   'complete.errorNote': 'complete-note',
   'complete.errorFile': 'complete-file',
   'complete.errorMinutes': 'complete-time',
+  'complete.errorDate': 'complete-date',
 }
 const invalidField = computed(() => FIELD_FOR[errorKey.value] ?? '')
 const saving = ref(false)
@@ -126,6 +128,8 @@ function onFile(e: Event) {
 }
 
 function validate(): string {
+  // `max` on the input isn't enforced for typed dates.
+  if (date.value && isFutureDate(date.value)) return 'complete.errorDate'
   if (minutes.value !== '' && !(Number.isInteger(minutes.value) && minutes.value >= 0 && minutes.value <= 100_000)) return 'complete.errorMinutes'
   if (kind.value === 'link' && !/^https?:\/\/\S+$/i.test(url.value.trim())) return 'complete.errorUrl'
   if (kind.value === 'certificate' && !file.value && !/^https?:\/\/\S+$/i.test(url.value.trim())) return 'complete.errorUrl'
@@ -143,7 +147,7 @@ function submit() {
     return
   }
   const input: CompleteInput = {
-    completedAt: date.value && date.value !== todayIso.value ? new Date(`${date.value}T12:00:00`).toISOString() : undefined,
+    completedAt: date.value && date.value !== todayIso.value ? completionAt(date.value) : undefined,
     timeSpentMinutes: minutes.value === '' ? null : Number(minutes.value),
     evidence: kind.value === 'none'
       ? null

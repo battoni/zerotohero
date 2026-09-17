@@ -1,5 +1,5 @@
 // @vitest-environment node
-// Regression tests for the findings of the impartial review (2026-09-17).
+// Regression tests: authorization, data integrity and activity rules.
 import { beforeAll, describe, expect, it } from 'vitest'
 import { asUser, createDb, createUser, rows, type Db } from './harness'
 
@@ -31,7 +31,7 @@ beforeAll(async () => {
   attackerMilestone = await firstMilestone(await trail(attacker, 'Attacker', 'private'))
 }, 60_000)
 
-describe('friendship forgery (finding 1)', () => {
+describe('friendship forgery', () => {
   it('the addressee cannot rewrite the requester', async () => {
     await asUser(db, sock, tx => tx.query('insert into public.friendships (requester_id, addressee_id) values ($1, $2)', [sock, attacker]))
     await expect(asUser(db, attacker, tx => tx.query(
@@ -50,7 +50,7 @@ describe('friendship forgery (finding 1)', () => {
   })
 })
 
-describe('evidence tampering (findings 2 and 3)', () => {
+describe('evidence tampering', () => {
   it('evidence cannot be moved onto someone else\'s milestone', async () => {
     const [e] = await asUser(db, attacker, tx => rows<{ id: string }>(tx,
       `insert into public.evidences (milestone_id, kind, url) values ($1, 'link', 'https://evil.example') returning id`, [attackerMilestone]))
@@ -76,7 +76,7 @@ describe('evidence tampering (findings 2 and 3)', () => {
   })
 })
 
-describe('helper functions (finding 4)', () => {
+describe('helper functions', () => {
   it('are_friends answers only about pairs that include the caller', async () => {
     const [r] = await asUser(db, stranger, tx => rows<{ are_friends: boolean }>(tx, 'select public.are_friends($1, $2)', [sock, attacker]))
     expect(r!.are_friends).toBe(false)
@@ -89,7 +89,7 @@ describe('helper functions (finding 4)', () => {
   })
 })
 
-describe('forged counters and dates (finding 5)', () => {
+describe('forged counters and dates', () => {
   it('copies_count and source_track_id are ignored from clients', async () => {
     const [t] = await asUser(db, attacker, tx => rows<{ id: string, copies_count: number, source_track_id: string | null }>(tx,
       `insert into public.tracks (title, visibility, copies_count, source_track_id) values ('Fake', 'public', 999999, $1) returning id, copies_count, source_track_id`,
@@ -113,7 +113,7 @@ describe('forged counters and dates (finding 5)', () => {
   })
 })
 
-describe('complete_milestone (finding 6)', () => {
+describe('complete_milestone', () => {
   it('completes and attaches evidence atomically', async () => {
     const t = await trail(attacker, 'Atomic', 'private')
     const m = await firstMilestone(t)
@@ -138,7 +138,7 @@ describe('complete_milestone (finding 6)', () => {
   })
 })
 
-describe('trails created already done (finding 8)', () => {
+describe('trails created already done', () => {
   it('record track_completed once, and not for partly done trails', async () => {
     const done = await asUser(db, attacker, async (tx) => {
       const [r] = await rows<{ create_track: string }>(tx, 'select public.create_track($1)', [JSON.stringify({
@@ -160,7 +160,7 @@ describe('trails created already done (finding 8)', () => {
   })
 })
 
-describe('track_completed stays consistent (third review, finding 2)', () => {
+describe('track_completed stays consistent', () => {
   const count = async (id: string, type = 'track_completed') =>
     (await rows(db, 'select id from public.activities where track_id = $1 and type = $2', [id, type])).length
   const create = (milestones: object[]) => asUser(db, attacker, async (tx) => {
@@ -200,7 +200,7 @@ describe('track_completed stays consistent (third review, finding 2)', () => {
   })
 })
 
-describe('unfollow (third review, finding 6)', () => {
+describe('unfollow', () => {
   it('removes the follow event from the feed', async () => {
     await asUser(db, stranger, tx => tx.query('insert into public.track_follows (user_id, track_id) values ($1, $2)', [stranger, victimPublic]))
     const events = () => rows(db, `select id from public.activities where actor_id = $1 and type = 'track_followed'`, [stranger])
@@ -210,7 +210,7 @@ describe('unfollow (third review, finding 6)', () => {
   })
 })
 
-describe('reopen_milestone (fourth review, finding 3)', () => {
+describe('reopen_milestone', () => {
   it('reopens, drops evidence and returns the file paths, atomically', async () => {
     const [{ create_track: id }] = await asUser(db, attacker, tx => rows<{ create_track: string }>(tx, 'select public.create_track($1)', [JSON.stringify({
       title: 'Reopen', phases: [{ title: 'P', milestones: [{ title: 'a' }] }],
@@ -231,7 +231,7 @@ describe('reopen_milestone (fourth review, finding 3)', () => {
   })
 })
 
-describe('ninth review', () => {
+describe('storage paths, size caps and privileges', () => {
   it('rejects storage paths with dot segments or extra folders', async () => {
     const [{ create_track: id }] = await asUser(db, attacker, tx => rows<{ create_track: string }>(tx, 'select public.create_track($1)', [JSON.stringify({
       title: 'Paths', phases: [{ title: 'P', milestones: [{ title: 'a' }, { title: 'b' }] }],

@@ -1,4 +1,4 @@
--- Activity consistency after the third review (2026-09-17).
+-- Activity consistency: one track_completed while a trail is done; unfollow cleans up.
 
 -- A trail has at most one track_completed, and only while it is actually complete.
 create or replace function public.sync_track_completed(p_track uuid)

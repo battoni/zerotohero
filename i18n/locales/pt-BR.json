@@ -140,7 +140,8 @@
     "errorSave": "Não foi possível salvar. Tente de novo.",
     "errorMinutes": "O tempo gasto é um número inteiro de minutos.",
     "evidenceLabel": "Tipo de evidência",
-    "finish": "Fechar"
+    "finish": "Fechar",
+    "errorDate": "A data não pode estar no futuro."
   },
   "editor": {
     "newTitle": "Nova trilha",
@@ -179,7 +180,7 @@
       "invalid_color": "Linha {line}: \"{value}\" não é uma cor conhecida (use violet, coral, sky, mint ou sun).",
       "invalid_visibility": "Linha {line}: \"{value}\" não é uma opção de visibilidade.",
       "invalid_date": "Linha {line}: \"{value}\" não é uma data válida (use AAAA-MM-DD).",
-      "future_date": "Linha {line}: {value} está no futuro; usamos a data de hoje.",
+      "future_date": "Linha {line}: {value} é depois de hoje; usamos a data de hoje.",
       "too_long": "Linha {line}: o texto foi encurtado.",
       "too_many_phases": "Linha {line}: cabem só 20 fases; o resto ficou de fora.",
       "too_many_milestones": "Linha {line}: cabem só 200 marcos; o resto ficou de fora."

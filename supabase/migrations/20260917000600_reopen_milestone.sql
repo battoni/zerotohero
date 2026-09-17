@@ -1,4 +1,4 @@
--- Reopen a milestone and drop its evidence in one transaction (fourth review, 2026-09-17).
+-- Reopen a milestone and drop its evidence in one transaction.
 -- Returns the storage paths the caller should remove from the bucket.
 create function public.reopen_milestone(p_id uuid)
 returns text[]

@@ -1,5 +1,5 @@
--- Hardening after the impartial review of 2026-09-17.
--- Each block names the finding it closes.
+-- Hardening: friendship guards, evidence ownership, helper exposure, counters.
+-- Numbered blocks, one rule each.
 
 -- (1) A friendship's parties are immutable, and the only transition is pending → accepted.
 create function public.guard_friendship_update()

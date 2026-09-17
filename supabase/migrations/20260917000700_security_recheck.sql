@@ -1,4 +1,4 @@
--- Ninth review (2026-09-17).
+-- Storage path shape, trail size caps and copy counting.
 
 -- (1) A stored file path is exactly {owner}/{milestone}/{file}, with no dot segments.
 -- Storage URLs are normalized by fetch, so "a/b/../../c" would reach another folder.

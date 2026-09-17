@@ -81,7 +81,7 @@ describe('trails', () => {
     expect(feed.filter(f => f.track.id === id).map(f => f.type).sort()).toEqual(['milestone_completed', 'track_started'])
   })
 
-  it('keeps a single, current track_completed (third review, finding 2)', async () => {
+  it('keeps a single, current track_completed', async () => {
     const doneAt = '2026-09-10T10:00:00.000Z'
     const done = { ...input, phases: [{ title: 'P', milestones: [{ title: 'a', tag: null, dueDate: null, completedAt: doneAt }, { title: 'b', tag: null, dueDate: null, completedAt: doneAt }] }] }
     const id = await repo.createTrack(done)
@@ -102,12 +102,12 @@ describe('trails', () => {
     expect(events.map(e => e.createdAt)).toEqual([later])
   })
 
-  it('rejects completion dates in the future (third review, finding 5)', async () => {
+  it('rejects completion dates in the future', async () => {
     const future = { ...input, phases: [{ title: 'P', milestones: [{ title: 'a', tag: null, dueDate: null, completedAt: '2026-12-01T00:00:00.000Z' }] }] }
     await expect(repo.createTrack(future)).rejects.toMatchObject({ code: 'invalid', message: 'completed_at' })
   })
 
-  it('rejects invalid minutes (fifth review)', async () => {
+  it('rejects invalid minutes', async () => {
     const id = await repo.createTrack(input)
     const m = (await repo.getTrack(id))!.phases[0]!.milestones[0]!
     await expect(repo.completeMilestone(m.id, { timeSpentMinutes: -5 })).rejects.toMatchObject({ code: 'invalid' })
@@ -194,7 +194,7 @@ describe('social', () => {
     expect((await repo.friends()).friends.map(f => f.handle)).not.toContain('bruno')
   })
 
-  it('cancels only a pending request I sent (eighth review)', async () => {
+  it('cancels only a pending request I sent', async () => {
     const [carla] = await repo.searchProfiles('@car')
     await repo.requestFriend(carla!.id)
     await repo.cancelRequest(carla!.id)

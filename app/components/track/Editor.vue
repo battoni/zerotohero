@@ -179,6 +179,7 @@
 
 <script setup lang="ts">
 import type { TrackInput } from '~~/shared/types/domain'
+import { completionAt } from '~~/shared/utils/dates'
 import { TRACK_COLORS, TRACK_VISIBILITIES, parseTrackList, type ParseResult, type ParsedTrack, type TrackColor, type TrackVisibility } from '~~/shared/utils/track-list'
 
 const props = defineProps<{ initial?: TrackInput, cancelTo: string, draftKey: string, templateId?: string }>()
@@ -308,7 +309,7 @@ function fillFrom(track: ParsedTrack) {
       title: m.title,
       tag: m.tag,
       dueDate: m.done ? null : m.date,
-      completedAt: m.done ? (m.date ? new Date(`${m.date}T12:00:00`).toISOString() : new Date().toISOString()) : null,
+      completedAt: m.done ? (m.date ? completionAt(m.date) : new Date().toISOString()) : null,
     })),
   })))
 }

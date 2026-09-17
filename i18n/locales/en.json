@@ -140,7 +140,8 @@
     "errorSave": "Could not save. Try again.",
     "errorMinutes": "Time spent is a whole number of minutes.",
     "evidenceLabel": "Kind of evidence",
-    "finish": "Close"
+    "finish": "Close",
+    "errorDate": "The date can't be in the future."
   },
   "editor": {
     "newTitle": "New trail",
@@ -179,7 +180,7 @@
       "invalid_color": "Line {line}: \"{value}\" is not a color we know (use violet, coral, sky, mint or sun).",
       "invalid_visibility": "Line {line}: \"{value}\" is not a visibility option.",
       "invalid_date": "Line {line}: \"{value}\" is not a valid date (use YYYY-MM-DD).",
-      "future_date": "Line {line}: {value} is in the future, so today's date was used.",
+      "future_date": "Line {line}: {value} is after today, so today's date was used.",
       "too_long": "Line {line}: the text was shortened.",
       "too_many_phases": "Line {line}: only 20 phases fit; the rest was skipped.",
       "too_many_milestones": "Line {line}: only 200 milestones fit; the rest was skipped."

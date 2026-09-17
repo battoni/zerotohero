@@ -13,7 +13,7 @@ interface Activity { id: string, type: FeedItem['type'], actorId: string, trackI
 interface StoredTrack extends Track { phases: Phase[] }
 
 export interface DemoState {
-  version: 1
+  version: typeof DEMO_STATE_VERSION
   meId: string
   profiles: Profile[]
   tracks: StoredTrack[]
@@ -41,6 +41,8 @@ const PEOPLE: Profile[] = [
 ]
 
 const DAY = 86_400_000
+/** Bump whenever the stored shape or its rules change: older browser state is then re-seeded. */
+export const DEMO_STATE_VERSION = 2
 
 let seq = 0
 function newId(prefix: string): string {
@@ -56,7 +58,7 @@ function clone<T>(v: T): T {
 /** Builds the initial demo world from the seed markdown files, with dates shifted so the latest one is "yesterday". */
 export function buildDemoState(files: Record<string, string>, now: Date): DemoState {
   const state: DemoState = {
-    version: 1,
+    version: DEMO_STATE_VERSION,
     meId: DEMO_ME,
     profiles: clone(PEOPLE),
     tracks: [],
@@ -159,14 +161,17 @@ export function buildDemoState(files: Record<string, string>, now: Date): DemoSt
   return state
 }
 
-export function localStorageDemo(key = 'zth_demo_v1'): DemoStorage {
+export function localStorageDemo(key = `zth_demo_v${DEMO_STATE_VERSION}`): DemoStorage {
   return {
     load() {
       try {
         const raw = globalThis.localStorage?.getItem(key)
         if (!raw) return null
         const parsed = JSON.parse(raw) as DemoState
-        return parsed.version === 1 ? parsed : null
+        // Anything older or malformed starts over from the seed.
+        const ok = parsed?.version === DEMO_STATE_VERSION && Array.isArray(parsed.tracks) && Array.isArray(parsed.activities)
+          && Array.isArray(parsed.profiles) && parsed.profiles.some(p => p.id === parsed.meId)
+        return ok ? parsed : null
       }
       catch {
         return null
@@ -429,6 +434,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       const { track, milestone } = ownedMilestone(milestoneId)
       const minutes = input?.timeSpentMinutes
       if (minutes != null && !(Number.isInteger(minutes) && minutes >= 0 && minutes <= 100_000)) throw new RepoError('invalid', 'minutes')
+      if (input?.completedAt && new Date(input.completedAt).getTime() > now().getTime() + DAY) throw new RepoError('invalid', 'completed_at')
       if (milestone.completedAt) return
       milestone.completedAt = input?.completedAt ?? now().toISOString()
       milestone.timeSpentMinutes = input?.timeSpentMinutes ?? null
