@@ -63,7 +63,7 @@ export interface ParseResult {
 }
 
 type MetaKey = 'emoji' | 'color' | 'due' | 'visibility'
-const META_LINE = /^\s*(emoji|color|due|visibility|[a-z]+)\s*:/i
+const META_LINE = /^\s*(emoji|color|due|visibility)\s*:/i
 const TAG = /(^|\s)#([\p{L}\p{N}_-]+)/u
 const DATE = /(^|\s)@(\d{4}-\d{2}-\d{2})(?=\s|$)/
 const ITEM = /^\s*(?:[-*+]|\d+[.)])\s+(?:\[([ xX])\]\s+)?(.*)$/
@@ -82,7 +82,7 @@ function clip(value: string, max: number, line: number, errors: ParseError[]): s
 }
 
 function isStructured(lines: string[]): boolean {
-  return lines.some(l => /^\s*#{1,2}\s/.test(l) || ITEM.test(l) || /^\s*>/.test(l))
+  return lines.some(l => /^\s*#{1,2}(\s|$)/.test(l) || ITEM.test(l) || /^\s*>/.test(l))
 }
 
 function parseMilestone(raw: string, done: boolean, line: number, errors: ParseError[]): ParsedMilestone | null {
@@ -101,7 +101,8 @@ function parseMilestone(raw: string, done: boolean, line: number, errors: ParseE
     else errors.push({ line, code: 'invalid_date', value: dateMatch[2] })
     text = text.replace(dateMatch[0], dateMatch[1]!)
   }
-  const title = text.replace(/\s+/g, ' ').trim()
+  // `\#` and `\@` are literal characters written by toTrackList.
+  const title = text.replace(/\\([#@])/g, '$1').replace(/\s+/g, ' ').trim()
   if (!title) return null
   return { title: clip(title, LIMITS.milestoneTitle, line, errors), tag, date, done }
 }
@@ -182,7 +183,7 @@ export function parseTrackList(input: string): ParseResult {
       if (track.title === null) track.title = clip(line.slice(2).trim(), LIMITS.trackTitle, lineNo, errors)
       return
     }
-    if (/^##\s/.test(line)) {
+    if (/^##(\s|$)/.test(line)) {
       seenContent = true
       if (track.phases.length >= LIMITS.phases) {
         if (!phaseLimitHit) errors.push({ line: lineNo, code: 'too_many_phases' })
@@ -190,7 +191,7 @@ export function parseTrackList(input: string): ParseResult {
         current = null
         return
       }
-      const title = clip(line.replace(/^##\s+/, '').trim(), LIMITS.phaseTitle, lineNo, errors)
+      const title = clip(line.replace(/^##\s*/, '').trim(), LIMITS.phaseTitle, lineNo, errors)
       current = { title: title || null, milestones: [] }
       track.phases.push(current)
       return
@@ -231,9 +232,10 @@ export function toTrackList(track: ParsedTrack): string {
 
   track.phases.forEach((phase, i) => {
     if (phase.title !== null) out.push(`## ${phase.title}`)
-    else if (i > 0) out.push('## ')
+    else if (i > 0) out.push('##')
     for (const m of phase.milestones) {
-      const parts = [`- [${m.done ? 'x' : ' '}] ${m.title}`]
+      const safe = m.title.replace(/(^|\s)([#@])/g, '$1\\$2')
+      const parts = [`- [${m.done ? 'x' : ' '}] ${safe}`]
       if (m.tag) parts.push(`#${m.tag}`)
       if (m.date) parts.push(`@${m.date}`)
       out.push(parts.join(' '))

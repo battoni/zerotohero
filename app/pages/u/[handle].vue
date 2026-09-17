@@ -85,7 +85,11 @@ const stats = computed(() => [
 
 async function add() {
   if (!detail.value) return
-  await repo.requestFriend(detail.value.profile.id)
-  await refresh()
+  try {
+    await repo.requestFriend(detail.value.profile.id)
+  }
+  finally {
+    await refresh()
+  }
 }
 </script>

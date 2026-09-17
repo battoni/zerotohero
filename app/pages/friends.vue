@@ -23,6 +23,7 @@
           </div>
         </div>
 
+        <p v-if="actionError" class="rounded-xl bg-coral-soft px-3 py-2 text-sm font-semibold text-coral" role="alert" data-testid="friends-error">{{ $t('common.error') }}</p>
         <div class="flex flex-col gap-3 rounded-card bg-surface p-4 shadow-soft">
           <h2 class="font-extrabold">{{ $t('friends.find') }}</h2>
           <input id="friends-search" v-model="query" type="search" class="field" :placeholder="$t('friends.findPlaceholder')" data-testid="friends-search">
@@ -71,13 +72,33 @@ const { data: lists, refresh: refreshLists } = useAsyncData('friend-lists', () =
 
 const query = ref('')
 const results = ref<Profile[] | null>(null)
+const actionError = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
+let searchSeq = 0
 watch(query, (q) => {
   clearTimeout(timer)
   timer = setTimeout(async () => {
-    results.value = q.trim() ? await repo.searchProfiles(q) : null
+    const mine = ++searchSeq
+    try {
+      const found = q.trim() ? await repo.searchProfiles(q) : null
+      if (mine === searchSeq) results.value = found
+    }
+    catch {
+      if (mine === searchSeq) results.value = []
+    }
   }, 250)
 })
+
+async function act(fn: () => Promise<void>) {
+  actionError.value = false
+  try {
+    await fn()
+    await Promise.all([refreshLists(), refreshFeed()])
+  }
+  catch {
+    actionError.value = true
+  }
+}
 
 function stateOf(id: string): FriendState {
   const l = lists.value
@@ -101,18 +122,7 @@ async function toggleKudos(item: FeedItem) {
   }
 }
 
-async function add(id: string) {
-  await repo.requestFriend(id)
-  await Promise.all([refreshLists(), refreshFeed()])
-}
-
-async function respond(id: string, accept: boolean) {
-  await repo.respondFriend(id, accept)
-  await Promise.all([refreshLists(), refreshFeed()])
-}
-
-async function removeFriend(id: string) {
-  await repo.removeFriend(id)
-  await Promise.all([refreshLists(), refreshFeed()])
-}
+const add = (id: string) => act(() => repo.requestFriend(id))
+const respond = (id: string, accept: boolean) => act(() => repo.respondFriend(id, accept))
+const removeFriend = (id: string) => act(() => repo.removeFriend(id))
 </script>

@@ -241,31 +241,25 @@ export function createSupabaseRepository(client: Client): DataRepository {
 
     async completeMilestone(milestoneId, input?: CompleteInput) {
       const me = await uid()
-      const completedAt = input?.completedAt ?? new Date().toISOString()
-      const { data: updated, error } = await client.from('milestones')
-        .update({ completed_at: completedAt, time_spent_minutes: input?.timeSpentMinutes ?? null })
-        .eq('id', milestoneId).is('completed_at', null).select('id')
-      fail(error)
-      if (!updated?.length) return
-
       const ev = input?.evidence
-      if (!ev) return
+      // Upload first; the RPC then completes the milestone and records the evidence atomically.
       let storagePath: string | null = null
-      if (ev.file) {
+      if (ev?.file) {
         const safeName = ev.file.name.replace(/[^\w.-]+/g, '_').slice(-80)
         storagePath = `${me}/${milestoneId}/${Date.now()}-${safeName}`
         const { error: upError } = await client.storage.from('evidence').upload(storagePath, ev.file, { contentType: ev.file.type })
         if (upError) throw new RepoError('network', upError.message)
       }
-      const { error: evError } = await client.from('evidences').insert({
-        milestone_id: milestoneId,
-        kind: ev.kind,
-        url: ev.url?.trim() || null,
-        body: ev.body?.trim() || null,
-        learned: ev.learned?.trim() || null,
-        storage_path: storagePath,
+      const { error } = await client.rpc('complete_milestone', {
+        p_id: milestoneId,
+        p_completed_at: input?.completedAt ?? null,
+        p_minutes: input?.timeSpentMinutes ?? null,
+        p_evidence: ev
+          ? { kind: ev.kind, url: ev.url?.trim() || null, body: ev.body?.trim() || null, learned: ev.learned?.trim() || null, storage_path: storagePath }
+          : null,
       })
-      fail(evError)
+      if (error && storagePath) await client.storage.from('evidence').remove([storagePath])
+      fail(error)
     },
 
     async reopenMilestone(milestoneId) {

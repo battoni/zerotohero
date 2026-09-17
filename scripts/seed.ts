@@ -164,11 +164,40 @@ async function insertTrail(seed: SeedTrack, ownerId: string) {
   return track.id
 }
 
+/** Accepted friendship between a and b, whatever already exists in either direction. */
 async function befriend(a: string, b: string) {
-  await must(db.from('friendships').upsert(
-    { requester_id: a, addressee_id: b, status: 'accepted', responded_at: new Date().toISOString() },
-    { onConflict: 'requester_id,addressee_id', ignoreDuplicates: true },
-  ), 'friendship')
+  const existing = (await must(db.from('friendships').select('*')
+    .or(`and(requester_id.eq.${a},addressee_id.eq.${b}),and(requester_id.eq.${b},addressee_id.eq.${a})`), 'friendship lookup')) ?? []
+  const row = existing[0]
+  if (!row) {
+    await must(db.from('friendships').insert({ requester_id: a, addressee_id: b, status: 'accepted', responded_at: new Date().toISOString() }), 'friendship')
+  }
+  else if (row.status !== 'accepted') {
+    await must(db.from('friendships').update({ status: 'accepted', responded_at: new Date().toISOString() })
+      .eq('requester_id', row.requester_id).eq('addressee_id', row.addressee_id), 'friendship accept')
+  }
+}
+
+/** Pending request from → to, unless the pair already exists either way. */
+async function request(from: string, to: string) {
+  const existing = (await must(db.from('friendships').select('requester_id')
+    .or(`and(requester_id.eq.${from},addressee_id.eq.${to}),and(requester_id.eq.${to},addressee_id.eq.${from})`), 'request lookup')) ?? []
+  if (!existing.length) await must(db.from('friendships').insert({ requester_id: from, addressee_id: to }), 'pending request')
+}
+
+/** Seeded milestones are inserted one by one, so a fully done trail needs its track_completed here. */
+async function markCompleted(trackId: string, ownerId: string) {
+  const ms = (await must(db.from('milestones').select('completed_at').eq('track_id', trackId), 'completion check')) ?? []
+  if (!ms.length || ms.some(m => !m.completed_at)) return null
+  const found = (await must(db.from('activities').select('id').eq('track_id', trackId).eq('type', 'track_completed'), 'activity lookup')) ?? []
+  if (found.length) return found[0]!.id
+  const last = ms.map(m => m.completed_at!).sort().at(-1)!
+  const inserted = (await must(db.from('activities').insert({ actor_id: ownerId, type: 'track_completed', track_id: trackId, created_at: last }).select('id'), 'track_completed')) ?? []
+  return inserted[0]?.id ?? null
+}
+
+async function cheer(activityId: string, userIds: string[]) {
+  await must(db.from('kudos').upsert(userIds.map(user_id => ({ activity_id: activityId, user_id })), { onConflict: 'activity_id,user_id', ignoreDuplicates: true }), 'kudos')
 }
 
 async function doReset() {
@@ -193,18 +222,24 @@ async function main() {
   const ids: Record<string, string> = {}
   for (const p of DEMO_PEOPLE) ids[p.handle] = await ensureDemoUser(p, password)
 
+  const completedActivities: string[] = []
   for (const t of demoTrails) {
     const owner = ids[t.ownerHandle!]
     if (!owner) {
       console.warn(`  ! no demo user for ${t.key}`)
       continue
     }
-    await insertTrail(t, owner)
+    const trackId = await insertTrail(t, owner)
+    const done = await markCompleted(trackId, owner)
+    if (done) completedActivities.push(done)
   }
 
   await befriend(ids.ana!, ids.rafa!)
   await befriend(ids.luiza!, ids.ana!)
+  await befriend(ids.luiza!, ids.rafa!)
   await befriend(ids.e2e!, ids.ana!)
+  // Friends cheer every finished demo trail (kudos RLS is bypassed by the secret key, so keep it to friends).
+  for (const activityId of completedActivities) await cheer(activityId, [ids.ana!, ids.luiza!])
 
   const ownerEmail = process.env.SEED_OWNER_EMAIL
   if (ownerEmail) {
@@ -213,9 +248,12 @@ async function main() {
       console.warn(`  ! ${ownerEmail} has not signed in yet; sign in once and run the seed again for the personal trails.`)
     }
     else {
-      for (const t of personalTrails) await insertTrail(t, owner.id)
+      for (const t of personalTrails) {
+        const trackId = await insertTrail(t, owner.id)
+        await markCompleted(trackId, owner.id)
+      }
       for (const h of ['ana', 'rafa', 'luiza']) await befriend(owner.id, ids[h]!)
-      await must(db.from('friendships').upsert({ requester_id: ids.bruno!, addressee_id: owner.id }, { onConflict: 'requester_id,addressee_id', ignoreDuplicates: true }), 'pending request')
+      await request(ids.bruno!, owner.id)
       console.log(`Personal trails attached to ${ownerEmail}.`)
     }
   }

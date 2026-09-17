@@ -258,7 +258,15 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 ## 9. Estado da implementação (2026-09-17)
 
 **Feito**
-- **Banco:** as quatro migrations (profiles, core, storage, RPCs) e 28 testes de SQL/RLS no PGlite.
+- **Banco:** cinco migrations (profiles, core, storage, RPCs, hardening) e 41 testes de SQL/RLS no PGlite.
+- **Hardening**, depois da revisão imparcial de 2026-09-17:
+  - as partes de uma amizade são imutáveis;
+  - a evidência só pode ficar em marco próprio, com link http(s) e arquivo dentro da pasta `{owner}/{milestone}/`;
+  - os helpers não são expostos ao `anon`, e `are_friends` só responde sobre pares que incluem quem pergunta;
+  - `copies_count` e `source_track_id` são ignorados quando vêm do cliente;
+  - `completed_at` não aceita data no futuro;
+  - `complete_milestone` é atômico;
+  - uma trilha criada já concluída registra `track_completed`.
 - **Código compartilhado:** parser e serializador de lista, utilitários de progresso e os dois repositórios, com testes do parser, do progresso e do repositório demo.
 - **Telas:** todas as da §1, em EN e PT-BR, nos temas claro e escuro, funcionando a partir de 390px.
 - **Seed:** idempotente, com `--dry-run` e `--reset`.

@@ -10,9 +10,13 @@ export default defineEventHandler(async (event) => {
   if (!UUID.test(id)) throw createError({ statusCode: 400, statusMessage: 'Bad evidence id' })
 
   const client = await serverSupabaseClient(event)
-  const { data, error } = await client.from('evidences').select('storage_path').eq('id', id).maybeSingle()
+  const { data, error } = await client.from('evidences').select('storage_path, owner_id, milestone_id').eq('id', id).maybeSingle()
   if (error) throw createError({ statusCode: 500, statusMessage: 'Lookup failed' })
   if (!data?.storage_path) throw createError({ statusCode: 404, statusMessage: 'Not found' })
+  // The database enforces this too; never sign a path outside the evidence owner's folder.
+  if (!data.storage_path.startsWith(`${data.owner_id}/${data.milestone_id}/`)) {
+    throw createError({ statusCode: 404, statusMessage: 'Not found' })
+  }
 
   const { data: signed, error: signError } = await serverSupabaseServiceRole(event)
     .storage.from('evidence').createSignedUrl(data.storage_path, 300)

@@ -115,6 +115,34 @@ describe('toTrackList', () => {
     expect(parseTrackList(toTrackList(track)).track).toEqual(track)
   })
 
+  it('round-trips titles that contain hashtags and at-signs', () => {
+    const track = {
+      title: null, goal: null, emoji: null, color: null, due: null, visibility: null,
+      phases: [{ title: null, milestones: [
+        { title: 'Learn #rust with @2026-01-01 friends', tag: null, date: null, done: false },
+        { title: 'C# basics #1', tag: 'lang', date: '2026-02-03', done: true },
+      ] }],
+    }
+    expect(parseTrackList(toTrackList(track)).track).toEqual(track)
+  })
+
+  it('round-trips an untitled phase after a named one', () => {
+    const track = {
+      title: 'T', goal: null, emoji: null, color: null, due: null, visibility: null,
+      phases: [
+        { title: 'Named', milestones: [{ title: 'a', tag: null, date: null, done: false }] },
+        { title: null, milestones: [{ title: 'b', tag: null, date: null, done: false }] },
+      ],
+    }
+    expect(parseTrackList(toTrackList(track)).track).toEqual(track)
+  })
+
+  it('keeps a leading "Note: …" line as a milestone', () => {
+    const { track, errors } = parseTrackList('# T\nNote: bring snacks\n- a')
+    expect(errors).toEqual([])
+    expect(track.phases[0]!.milestones.map(m => m.title)).toEqual(['Note: bring snacks', 'a'])
+  })
+
   it('round-trips a default phase followed by named phases', () => {
     const { track } = parseTrackList('- loose\n## Named\n- inside #t @2026-01-02')
     expect(parseTrackList(toTrackList(track)).track).toEqual(track)
