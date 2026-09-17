@@ -6,7 +6,7 @@
           <span class="text-[13px] text-muted">{{ today }}</span>
         </ClientOnly>
         <h1 class="text-2xl font-black sm:text-3xl" data-testid="home-greeting">
-          {{ $t('home.greeting', { name: greetName }) }}
+          {{ greetName ? $t('home.greeting', { name: greetName }) : $t('home.greetingNoName') }}
         </h1>
       </div>
       <UiBtn variant="primary" :to="localePath('/tracks/new')" data-testid="home-new">+ {{ $t('home.newTrack') }}</UiBtn>

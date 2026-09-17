@@ -6,7 +6,7 @@
         <p class="font-semibold">{{ $t('track.notFound') }}</p>
         <UiBtn :to="localePath('/tracks')">{{ $t('track.back') }}</UiBtn>
       </div>
-      <TrackEditor v-else :key="id" :initial="initial" :cancel-to="localePath(`/tracks/${id}`)" @save="update" />
+      <TrackEditor v-else :key="id" :initial="initial" :draft-key="`edit:${id}`" :cancel-to="localePath(`/tracks/${id}`)" @save="update" />
     </UiState>
   </div>
 </template>

@@ -17,7 +17,8 @@
     "i18n:check": "node scripts/i18n-check.mjs",
     "seed": "tsx --env-file=.env scripts/seed.ts",
     "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > shared/types/database.ts",
-    "gates": "npm run lint && npm run typecheck && npm run i18n:check && npm test"
+    "gates": "npm run sfc:check && npm run lint && npm run typecheck && npm run i18n:check && npm test",
+    "sfc:check": "node scripts/sfc-check.mjs"
   },
   "dependencies": {
     "@nuxtjs/i18n": "^10.6.0",

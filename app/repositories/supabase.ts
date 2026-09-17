@@ -60,6 +60,7 @@ const toMilestone = (r: MilestoneRow): Milestone => ({
   dueDate: r.due_date,
   completedAt: r.completed_at,
   timeSpentMinutes: r.time_spent_minutes,
+  evidenceCount: 0,
 })
 
 const toEvidence = (r: EvidenceRow): Evidence => ({
@@ -205,9 +206,13 @@ export function createSupabaseRepository(client: Client): DataRepository {
       let recentEvidence: TrackDetail['recentEvidence'] = []
       if (milestones.length) {
         const { data: ev, error: evError } = await client.from('evidences').select('*')
-          .in('milestone_id', milestones.map(m => m.id)).order('created_at', { ascending: false }).limit(5)
+          .in('milestone_id', milestones.map(m => m.id)).order('created_at', { ascending: false })
         fail(evError)
-        recentEvidence = (ev ?? []).map(e => ({
+        for (const e of ev ?? []) {
+          const m = milestones.find(x => x.id === e.milestone_id)
+          if (m) m.evidenceCount += 1
+        }
+        recentEvidence = (ev ?? []).slice(0, 5).map(e => ({
           ...toEvidence(e),
           milestoneTitle: milestones.find(m => m.id === e.milestone_id)?.title ?? '',
         }))

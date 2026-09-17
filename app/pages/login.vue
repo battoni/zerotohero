@@ -34,7 +34,7 @@
     </form>
 
     <p v-if="error" class="rounded-xl bg-coral-soft px-4 py-3 text-sm font-semibold text-coral" role="alert" data-testid="login-error">
-      {{ $t('login.error', { message: error }) }}
+      {{ $t('login.errorGeneric') }}
     </p>
   </div>
 </template>

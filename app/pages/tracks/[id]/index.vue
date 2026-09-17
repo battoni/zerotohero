@@ -8,7 +8,7 @@
 
       <template v-else>
         <header
-          class="relative grid gap-4 overflow-hidden rounded-[22px] p-5 text-on-color sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+          class="relative grid gap-4 overflow-hidden rounded-[22px] p-5 text-white sm:p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
           :class="`cover-${track.color}`"
           data-testid="track-header"
         >
@@ -26,11 +26,11 @@
             <div class="mt-2 flex flex-wrap gap-2">
               <template v-if="track.isOwner">
                 <UiBtn size="sm" variant="ink" :to="localePath(`/tracks/${track.id}/edit`)" data-testid="track-edit">{{ $t('track.edit') }}</UiBtn>
-                <UiBtn size="sm" variant="ghost" class="text-on-color! hover:bg-white/15!" data-testid="track-delete" @click="confirmDelete = true">{{ $t('track.delete') }}</UiBtn>
+                <UiBtn size="sm" variant="ghost" class="text-white! hover:bg-white/15!" data-testid="track-delete" @click="confirmDelete = true">{{ $t('track.delete') }}</UiBtn>
               </template>
               <template v-else>
-                <UiBtn size="sm" variant="ink" :disabled="busy" data-testid="track-copy" @click="copy">{{ $t('track.useTemplate') }}</UiBtn>
-                <UiBtn size="sm" variant="ghost" class="bg-white/15! text-on-color!" :disabled="busy" data-testid="track-follow" @click="toggleFollow">
+                <UiBtn size="sm" variant="ink" :to="localePath(`/tracks/new?from=${track.id}`)" data-testid="track-copy">{{ $t('track.useTemplate') }}</UiBtn>
+                <UiBtn size="sm" variant="ghost" class="bg-white/15! text-white!" :disabled="busy" :aria-pressed="track.isFollowing" data-testid="track-follow" @click="toggleFollow">
                   {{ track.isFollowing ? $t('track.following') : $t('track.follow') }}
                 </UiBtn>
               </template>
@@ -38,6 +38,8 @@
           </div>
           <UiProgressRing :value="pct" :size="104" :stroke="3.5" light class="relative" data-testid="track-progress" />
         </header>
+
+        <p v-if="actionError" class="rounded-xl bg-coral-soft px-4 py-3 text-sm font-semibold text-coral" role="alert" data-testid="track-action-error">{{ $t('track.actionError') }}</p>
 
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <section class="rounded-card bg-surface p-5 shadow-soft">
@@ -90,12 +92,22 @@
           @submit="completeFromSheet"
         />
 
-        <UiSheet :open="confirmDelete" :title="$t('track.deleteConfirm')" @close="confirmDelete = false">
-          <div class="flex flex-wrap gap-2">
-            <UiBtn variant="danger" :disabled="busy" data-testid="track-delete-confirm" @click="remove">{{ $t('track.deleteYes') }}</UiBtn>
-            <UiBtn variant="ghost" @click="confirmDelete = false">{{ $t('track.cancel') }}</UiBtn>
-          </div>
-        </UiSheet>
+        <UiConfirm
+          :open="confirmDelete"
+          :title="$t('track.deleteConfirm')"
+          :confirm-label="$t('track.deleteYes')"
+          :busy="busy"
+          @confirm="remove"
+          @cancel="confirmDelete = false"
+        />
+        <UiConfirm
+          :open="!!pendingReopen"
+          :title="$t('track.reopenTitle')"
+          :body="$t('track.reopenBody')"
+          :confirm-label="$t('track.reopenYes')"
+          @confirm="confirmReopen"
+          @cancel="pendingReopen = null"
+        />
       </template>
     </UiState>
   </div>
@@ -116,7 +128,9 @@ useHead({ title: () => track.value?.title ?? t('nav.myTracks') })
 
 const bursts = reactive<Record<string, number>>({})
 const busy = ref(false)
+const actionError = ref(false)
 const confirmDelete = ref(false)
+const pendingReopen = ref<Milestone | null>(null)
 const sheetOpen = ref(false)
 const sheetMilestone = ref<Milestone | null>(null)
 
@@ -144,11 +158,27 @@ function recount(tr: TrackDetail) {
   tr.nextMilestoneTitle = ms.find(m => !m.completedAt)?.title ?? null
 }
 
-async function onToggle(m: Milestone) {
+function onToggle(m: Milestone) {
+  // Reopening deletes evidence and time spent: ask first when there is something to lose.
+  if (m.completedAt && (m.evidenceCount > 0 || m.timeSpentMinutes)) {
+    pendingReopen.value = m
+    return
+  }
+  return applyToggle(m)
+}
+
+function confirmReopen() {
+  const m = pendingReopen.value
+  pendingReopen.value = null
+  if (m) applyToggle(m)
+}
+
+async function applyToggle(m: Milestone) {
   const tr = track.value
   if (!tr || busy.value) return
   const target = tr.phases.flatMap(p => p.milestones).find(x => x.id === m.id)
   if (!target) return
+  actionError.value = false
   const wasDone = !!target.completedAt
   // Optimistic update, rolled back on failure.
   target.completedAt = wasDone ? null : new Date().toISOString()
@@ -162,6 +192,7 @@ async function onToggle(m: Milestone) {
   catch {
     target.completedAt = wasDone ? m.completedAt : null
     recount(tr)
+    actionError.value = true
   }
 }
 
@@ -184,42 +215,36 @@ async function completeFromSheet(input: CompleteInput, done: (ok: boolean) => vo
   }
 }
 
-async function toggleFollow() {
+async function guarded(fn: () => Promise<void>) {
+  busy.value = true
+  actionError.value = false
+  try {
+    await fn()
+  }
+  catch {
+    actionError.value = true
+  }
+  finally {
+    busy.value = false
+  }
+}
+
+function toggleFollow() {
   const tr = track.value
   if (!tr) return
-  busy.value = true
-  try {
+  return guarded(async () => {
     await repo.setFollowing(tr.id, !tr.isFollowing)
     await refresh()
-  }
-  finally {
-    busy.value = false
-  }
+  })
 }
 
-async function copy() {
+function remove() {
   const tr = track.value
   if (!tr) return
-  busy.value = true
-  try {
-    const newId = await repo.copyTrack(tr.id)
-    await navigateTo(localePath(`/tracks/${newId}/edit`))
-  }
-  finally {
-    busy.value = false
-  }
-}
-
-async function remove() {
-  const tr = track.value
-  if (!tr) return
-  busy.value = true
-  try {
+  return guarded(async () => {
     await repo.deleteTrack(tr.id)
+    confirmDelete.value = false
     await navigateTo(localePath('/tracks'))
-  }
-  finally {
-    busy.value = false
-  }
+  })
 }
 </script>

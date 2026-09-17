@@ -2,7 +2,7 @@
   <form class="grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)]" novalidate data-testid="track-editor" @submit.prevent="save">
     <!-- Identity -->
     <div class="flex flex-col gap-3.5">
-      <div class="relative flex min-h-[150px] flex-col justify-between overflow-hidden rounded-[20px] p-5 text-on-color transition-[background]" :class="`cover-${form.color}`" data-testid="editor-cover">
+      <div class="relative flex min-h-[150px] flex-col justify-between overflow-hidden rounded-[20px] p-5 text-white transition-[background]" :class="`cover-${form.color}`" data-testid="editor-cover">
         <span class="absolute -bottom-12 -right-8 size-40 rounded-full bg-white/15" aria-hidden="true" />
         <span class="relative text-4xl" aria-hidden="true">{{ form.emoji || '🎯' }}</span>
         <h2 class="relative text-2xl font-black">{{ form.title || $t('editor.namePlaceholder') }}</h2>
@@ -49,9 +49,9 @@
       </div>
       <div class="label">
         {{ $t('editor.visibility') }}
-        <div class="flex flex-wrap gap-1.5" role="radiogroup" :aria-label="$t('editor.visibility')">
+        <div class="flex flex-wrap gap-1.5" role="group" :aria-label="$t('editor.visibility')">
           <button
-            v-for="v in TRACK_VISIBILITIES" :key="v" type="button" role="radio" :aria-checked="form.visibility === v"
+            v-for="v in TRACK_VISIBILITIES" :key="v" type="button" :aria-pressed="form.visibility === v"
             class="rounded-full px-3 py-1.5 text-[13px] font-semibold"
             :class="form.visibility === v ? 'bg-violet text-on-color' : 'bg-surface-2 text-muted'"
             :data-testid="`editor-visibility-${v}`"
@@ -65,9 +65,9 @@
 
     <!-- Structure -->
     <div class="flex flex-col gap-3.5">
-      <div v-if="isNew" class="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]" role="radiogroup">
+      <div v-if="isNew" class="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]" role="group" :aria-label="$t('editor.startLabel')">
         <button
-          v-for="s in STARTS" :key="s" type="button" role="radio" :aria-checked="start === s"
+          v-for="s in STARTS" :key="s" type="button" :aria-pressed="start === s"
           class="flex flex-col gap-1 rounded-2xl p-3.5 text-left"
           :class="start === s ? 'bg-violet-soft shadow-[inset_0_0_0_2px_var(--violet)]' : 'bg-surface-2'"
           :data-testid="`editor-start-${s}`"
@@ -85,7 +85,10 @@
           <textarea id="editor-paste" v-model="pasted" rows="8" class="field num bg-surface!" :placeholder="$t('editor.pastePlaceholder')" data-testid="editor-paste" />
         </label>
         <div v-if="parsed" class="flex flex-col gap-1.5 text-[13px]">
-          <span class="font-semibold">{{ $t('editor.pastePreview', { phases: parsed.track.phases.length, milestones: parsedCount }, parsed.track.phases.length) }}</span>
+          <span class="font-semibold">{{ $t('editor.pastePreview', {
+            phases: $t('editor.pastePhases', { count: parsed.track.phases.length }, parsed.track.phases.length),
+            milestones: $t('editor.pasteMilestones', { count: parsedCount }, parsedCount),
+          }) }}</span>
           <template v-if="parsed.errors.length">
             <span class="font-bold text-coral">{{ $t('editor.pasteErrors') }}</span>
             <ul class="list-inside list-disc text-coral" data-testid="editor-paste-errors">
@@ -125,8 +128,8 @@
               :id="`phase-${phase.key}`" v-model="phase.title" class="field font-extrabold" maxlength="60"
               :aria-label="$t('editor.phaseTitle')" :placeholder="$t('editor.phaseTitle')" :data-testid="`editor-phase-title-${pi}`"
             >
-            <UiIconBtn :label="$t('editor.moveUp')" :disabled="pi === 0" @click="move(form.phases, pi, -1)">↑</UiIconBtn>
-            <UiIconBtn :label="$t('editor.moveDown')" :disabled="pi === form.phases.length - 1" @click="move(form.phases, pi, 1)">↓</UiIconBtn>
+            <UiIconBtn :id="`up-${phase.key}`" :label="$t('editor.moveUp')" :disabled="pi === 0" @click="move(form.phases, pi, -1, phase.key)">↑</UiIconBtn>
+            <UiIconBtn :id="`down-${phase.key}`" :label="$t('editor.moveDown')" :disabled="pi === form.phases.length - 1" @click="move(form.phases, pi, 1, phase.key)">↓</UiIconBtn>
             <UiIconBtn :label="$t('editor.remove')" :disabled="form.phases.length === 1" @click="form.phases.splice(pi, 1)">✕</UiIconBtn>
           </div>
           <div v-for="(m, mi) in phase.milestones" :key="m.key" class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-surface-2 p-2 sm:grid-cols-[minmax(0,1fr)_110px_140px_auto]" :data-testid="`editor-milestone-${pi}-${mi}`">
@@ -137,9 +140,9 @@
             <input :id="`tag-${m.key}`" v-model="m.tag" class="field bg-surface! max-sm:order-3" maxlength="24" :aria-label="$t('editor.tag')" :placeholder="`#${$t('editor.tag').toLowerCase()}`">
             <input :id="`due-${m.key}`" v-model="m.dueDate" type="date" class="field num bg-surface! max-sm:order-4" :aria-label="$t('editor.due')">
             <div class="flex gap-1 max-sm:row-start-1 max-sm:col-start-2">
-              <UiIconBtn :label="$t('editor.moveUp')" :disabled="mi === 0" @click="move(phase.milestones, mi, -1)">↑</UiIconBtn>
-              <UiIconBtn :label="$t('editor.moveDown')" :disabled="mi === phase.milestones.length - 1" @click="move(phase.milestones, mi, 1)">↓</UiIconBtn>
-              <UiIconBtn :label="$t('editor.remove')" @click="phase.milestones.splice(mi, 1)">✕</UiIconBtn>
+              <UiIconBtn :id="`up-${m.key}`" :label="$t('editor.moveUp')" :disabled="mi === 0" @click="move(phase.milestones, mi, -1, m.key)">↑</UiIconBtn>
+              <UiIconBtn :id="`down-${m.key}`" :label="$t('editor.moveDown')" :disabled="mi === phase.milestones.length - 1" @click="move(phase.milestones, mi, 1, m.key)">↓</UiIconBtn>
+              <UiIconBtn :label="$t('editor.remove')" :data-testid="`editor-remove-${pi}-${mi}`" @click="removeMilestone(phase, mi)">✕</UiIconBtn>
             </div>
           </div>
           <button type="button" class="self-start rounded-full px-3 py-1.5 text-sm font-bold text-violet hover:bg-violet-soft" :data-testid="`editor-add-milestone-${pi}`" @click="addMilestone(phase)">
@@ -156,18 +159,28 @@
         <UiBtn type="submit" variant="primary" :disabled="saving" data-testid="editor-save">
           {{ saving ? $t('editor.saving') : (isNew ? $t('editor.save') : $t('editor.update')) }}
         </UiBtn>
-        <UiBtn variant="ghost" :to="cancelTo">{{ $t('track.cancel') }}</UiBtn>
+        <UiBtn variant="ghost" data-testid="editor-cancel" @click="cancel">{{ $t('track.cancel') }}</UiBtn>
       </div>
     </div>
+
+    <UiConfirm
+      :open="!!pendingRemove"
+      :title="$t('editor.removeDoneTitle')"
+      :body="pendingRemove ? $t('editor.removeDoneBody', { title: pendingRemove.phase.milestones[pendingRemove.index]?.title ?? '' }) : ''"
+      :confirm-label="$t('editor.removeDoneYes')"
+      :cancel-label="$t('editor.keep')"
+      @confirm="confirmRemove"
+      @cancel="pendingRemove = null"
+    />
   </form>
 </template>
 
 <script setup lang="ts">
 import type { TrackInput } from '~~/shared/types/domain'
-import { TRACK_COLORS, TRACK_VISIBILITIES, parseTrackList, type ParseResult, type ParsedTrack } from '~~/shared/utils/track-list'
+import { TRACK_COLORS, TRACK_VISIBILITIES, parseTrackList, type ParseResult, type ParsedTrack, type TrackColor, type TrackVisibility } from '~~/shared/utils/track-list'
 
-const props = defineProps<{ initial?: TrackInput, cancelTo: string }>()
-const emit = defineEmits<{ save: [input: TrackInput, done: (ok: boolean) => void] }>()
+const props = defineProps<{ initial?: TrackInput, cancelTo: string, draftKey: string, templateId?: string }>()
+const emit = defineEmits<{ save: [input: TrackInput, done: (ok: boolean) => void, sourceId: string | null] }>()
 const { t } = useI18n()
 const repo = useRepo()
 
@@ -181,16 +194,48 @@ let keySeq = 0
 const nextKey = () => ++keySeq
 const isNew = computed(() => !props.initial)
 
-const form = reactive({
+interface Draft {
+  form: { title: string, emoji: string, color: TrackColor, visibility: TrackVisibility, phases: EditPhase[] }
+  goal: string
+  targetDate: string
+  sourceId: string | null
+}
+
+// Unsaved edits live in shared state, so switching language (a new route) keeps them.
+const draft = useState<Draft | null>(`track-draft:${props.draftKey}`, () => null)
+const saved = draft.value
+if (saved) keySeq = Math.max(0, ...saved.form.phases.flatMap(p => [p.key, ...p.milestones.map(m => m.key)]))
+
+const form = reactive<Draft['form']>(saved?.form ?? {
   title: props.initial?.title ?? '',
   emoji: props.initial?.emoji ?? '🎯',
   color: props.initial?.color ?? 'violet',
   visibility: props.initial?.visibility ?? 'private',
   phases: toEditPhases(props.initial?.phases ?? [{ title: t('editor.defaultPhase'), milestones: [{ title: '', tag: null, dueDate: null }] }]),
 })
-const goal = ref(props.initial?.goal ?? '')
-const targetDate = ref(props.initial?.targetDate ?? '')
-const start = ref<typeof STARTS[number]>('blank')
+const goal = ref(saved?.goal ?? props.initial?.goal ?? '')
+const targetDate = ref(saved?.targetDate ?? props.initial?.targetDate ?? '')
+const sourceId = ref<string | null>(saved?.sourceId ?? null)
+const start = ref<typeof STARTS[number]>(sourceId.value ? 'template' : 'blank')
+
+watch([form, goal, targetDate, sourceId], () => {
+  draft.value = { form: JSON.parse(JSON.stringify(form)), goal: goal.value, targetDate: targetDate.value, sourceId: sourceId.value }
+}, { deep: true })
+
+function discardDraft() {
+  draft.value = null
+}
+
+// Leaving for another page drops the draft; switching language (same path, other prefix) keeps it.
+const stripLocale = (path: string) => path.replace(/^\/pt-BR(?=\/|$)/, '') || '/'
+onBeforeRouteLeave((to, from) => {
+  if (stripLocale(to.path) !== stripLocale(from.path)) discardDraft()
+})
+
+async function cancel() {
+  discardDraft()
+  await navigateTo(props.cancelTo)
+}
 const pasted = ref('')
 const errorKey = ref('')
 const saving = ref(false)
@@ -206,11 +251,30 @@ function toEditPhases(phases: TrackInput['phases']): EditPhase[] {
 
 const totalMilestones = computed(() => form.phases.reduce((n, p) => n + p.milestones.length, 0))
 
-function move<T>(list: T[], index: number, delta: number) {
+function move<T>(list: T[], index: number, delta: number, key: number) {
   const to = index + delta
   if (to < 0 || to >= list.length) return
   const [item] = list.splice(index, 1)
   list.splice(to, 0, item!)
+  // Keep focus on the moved row: same arrow if it is still usable, otherwise the other one.
+  nextTick(() => {
+    const same = document.getElementById(`${delta < 0 ? 'up' : 'down'}-${key}`) as HTMLButtonElement | null
+    const other = document.getElementById(`${delta < 0 ? 'down' : 'up'}-${key}`) as HTMLButtonElement | null
+    ;(same && !same.disabled ? same : other)?.focus()
+  })
+}
+
+const pendingRemove = ref<{ phase: EditPhase, index: number } | null>(null)
+
+function removeMilestone(phase: EditPhase, index: number) {
+  if (phase.milestones[index]?.completedAt) pendingRemove.value = { phase, index }
+  else phase.milestones.splice(index, 1)
+}
+
+function confirmRemove() {
+  const p = pendingRemove.value
+  if (p) p.phase.milestones.splice(p.index, 1)
+  pendingRemove.value = null
 }
 
 function addMilestone(phase: EditPhase) {
@@ -248,8 +312,18 @@ function fillFrom(track: ParsedTrack) {
 }
 
 function applyPaste() {
-  if (parsed.value) fillFrom(parsed.value.track)
+  if (!parsed.value) return
+  sourceId.value = null
+  fillFrom(parsed.value.track)
 }
+
+// Arriving from Explore (?from=…): prefill from that template once, unless a draft already exists.
+onMounted(() => {
+  if (props.templateId && !saved) {
+    start.value = 'template'
+    applyTemplate(props.templateId)
+  }
+})
 
 // Start from a template
 const { data: templates, pending: templatesPending, execute: loadTemplates } = useAsyncData('editor-templates', () => repo.explore({ filter: 'popular' }), {
@@ -263,6 +337,7 @@ watch(start, (s) => {
 async function applyTemplate(id: string) {
   const tpl = await repo.getTrack(id)
   if (!tpl) return
+  sourceId.value = id
   form.title = tpl.title
   goal.value = tpl.goal ?? ''
   form.emoji = tpl.emoji
@@ -312,8 +387,9 @@ function save() {
   saving.value = true
   emit('save', input, (ok) => {
     saving.value = false
-    if (!ok) errorKey.value = 'editor.errorSave'
-  })
+    if (ok) discardDraft()
+    else errorKey.value = 'editor.errorSave'
+  }, sourceId.value)
 }
 </script>
 

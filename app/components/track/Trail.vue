@@ -33,7 +33,7 @@
           @click="editable && emit('toggle', m)"
         >
           <svg viewBox="0 0 24 24" fill="none" class="size-4 transition-opacity" :class="m.completedAt ? 'opacity-100' : 'opacity-0'" aria-hidden="true">
-            <path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M5 12.5l4.5 4.5L19 7" stroke="var(--on-color)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <UiConfetti :trigger="bursts[m.id] ?? 0" />
         </component>

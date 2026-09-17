@@ -46,6 +46,14 @@ test('create a trail from a pasted list, tick milestones and attach evidence', a
   await expect(page.getByTestId('track-progress')).toHaveAttribute('aria-label', '67%')
   await expect(page.getByTestId('track-evidence')).toContainText('doc.rust-lang.org/book/')
 
+  // Reopening a milestone that has evidence asks first.
+  const done = page.locator('[data-testid^="toggle-"][aria-pressed="true"]').nth(1)
+  await done.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByTestId('confirm-yes')).toBeVisible()
+  await dialog.getByTestId('confirm-no').click()
+  await expect(page.getByTestId('track-progress')).toHaveAttribute('aria-label', '67%')
+
   // Persisted in the browser across a reload.
   await page.reload()
   await page.waitForLoadState('networkidle')
@@ -61,11 +69,27 @@ test('copy a public template and cheer a friend', async ({ page }) => {
   const use = page.locator('[data-testid^="explore-use-"]').first()
   await expect(use).toBeVisible()
   await use.click()
-  await page.waitForURL(/\/tracks\/[^/]+\/edit$/)
+  await page.waitForURL(/\/tracks\/new\?from=/)
   await expect(page.getByTestId('editor-title')).toHaveValue('AWS Developer in 8 weeks')
+  // Cancelling creates nothing.
+  await page.getByTestId('editor-cancel').click()
+  await page.waitForURL('**/tracks')
+  await expect(page.locator('[data-testid^="track-card-"]')).toHaveCount(2)
+
+  await go(page, '/explore')
+  await page.getByTestId('explore-search').fill('aws')
+  await expect(page.getByTestId('explore-list')).not.toContainText('Technical English')
+  await page.locator('[data-testid^="explore-use-"]').first().click()
+  await expect(page.getByTestId('editor-title')).toHaveValue('AWS Developer in 8 weeks')
+  await page.getByTestId('editor-title').fill('My AWS plan')
   await page.getByTestId('editor-save').click()
   await page.waitForURL(/\/tracks\/[^/]+$/)
+  await expect(page.getByTestId('track-title')).toHaveText('My AWS plan')
   await expect(page.getByTestId('track-progress')).toHaveAttribute('aria-label', '0%')
+
+  await go(page, '/explore')
+  await page.getByTestId('explore-search').fill('aws')
+  await expect(page.getByTestId('explore-list')).toContainText('used by 13 people')
 
   await go(page, '/friends')
   const cheer = page.locator('[data-testid^="kudos-"][aria-pressed="false"]').first()
@@ -76,6 +100,28 @@ test('copy a public template and cheer a friend', async ({ page }) => {
   await page.getByTestId(/^accept-/).first().click()
   await expect(page.getByTestId('friend-requests')).toHaveCount(0)
   await expect(page.getByTestId('friends-list')).toContainText('Bruno')
+})
+
+test('an unsaved edit survives switching language', async ({ page }) => {
+  await enterDemo(page)
+  await go(page, '/tracks/new')
+  await page.getByTestId('editor-title').fill('Draft in progress')
+  await page.getByTestId('locale-switch').click()
+  await page.waitForURL('**/pt-BR/tracks/new')
+  await expect(page.getByTestId('editor-title')).toHaveValue('Draft in progress')
+})
+
+test('very long unbroken text does not overflow the page', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await enterDemo(page)
+  await go(page, '/tracks/new')
+  await page.getByTestId('editor-title').fill('x'.repeat(80))
+  await page.getByTestId('editor-milestone-title-0-0').fill(`https://example.com/${'a'.repeat(110)}`)
+  await page.getByTestId('editor-save').click()
+  await page.waitForURL(/\/tracks\/[^/]+$/)
+  await page.getByTestId('trail').waitFor()
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+  expect(overflow).toBeLessThanOrEqual(0)
 })
 
 test('switches language and keeps the session', async ({ page }) => {

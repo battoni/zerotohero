@@ -1,17 +1,16 @@
 <template>
-  <UiSheet :open="open" :title="celebrating ? '' : $t('complete.title')" @close="onClose">
+  <UiSheet :open="open" :title="celebrating ? celebrateHeading : $t('complete.title')" :hide-title="!!celebrating" @close="onClose">
     <div v-if="!celebrating && milestone" class="flex flex-col gap-4" data-testid="complete-form">
       <p class="text-lg font-black leading-snug">{{ milestone.title }}</p>
 
       <div class="flex flex-col gap-1.5">
         <span class="text-[13px] font-bold text-muted">{{ $t('complete.evidence') }}</span>
-        <div class="flex flex-wrap gap-1.5" role="radiogroup" :aria-label="$t('complete.evidence')">
+        <div class="flex flex-wrap gap-1.5" role="group" :aria-label="$t('complete.evidenceLabel')">
           <button
             v-for="k in kinds"
             :key="k"
             type="button"
-            role="radio"
-            :aria-checked="kind === k"
+            :aria-pressed="kind === k"
             class="rounded-full px-3 py-1.5 text-[13px] font-semibold"
             :class="kind === k ? 'bg-violet text-on-color' : 'bg-surface-2 text-muted'"
             :data-testid="`evidence-kind-${k}`"
@@ -61,15 +60,15 @@
       </div>
     </div>
 
-    <div v-else-if="celebrating" class="relative -m-2 flex flex-col gap-3 overflow-hidden rounded-[22px] bg-linear-to-br from-mint to-[#36C9A0] p-7 text-on-color" data-testid="celebrate">
+    <div v-else-if="celebrating" class="relative -m-2 flex flex-col gap-3 overflow-hidden rounded-[22px] cover-mint p-7 text-white" data-testid="celebrate">
       <span class="grid size-16 place-items-center rounded-full bg-white/25">
         <svg viewBox="0 0 24 24" fill="none" class="size-8" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
         <UiConfetti :trigger="celebrating" :radius="90" :count="18" />
       </span>
-      <h3 class="text-3xl font-black">{{ remaining === 0 ? $t('track.allDone') : $t('complete.celebrateTitle') }}</h3>
+      <h3 class="text-3xl font-black" aria-hidden="true">{{ celebrateHeading }}</h3>
       <p>{{ remaining === 0 ? $t('complete.celebrateDone') : $t('complete.celebrateLeft', { count: remaining }, remaining) }}</p>
       <div>
-        <UiBtn variant="ink" data-testid="celebrate-close" @click="onClose">{{ $t('complete.close') }}</UiBtn>
+        <UiBtn id="celebrate-continue" variant="ink" data-testid="celebrate-close" @click="onClose">{{ $t('complete.close') }}</UiBtn>
       </div>
     </div>
   </UiSheet>
@@ -81,6 +80,7 @@ import type { CompleteInput, EvidenceKind, Milestone } from '~~/shared/types/dom
 const props = defineProps<{ open: boolean, milestone: Milestone | null, remainingAfter: number }>()
 const emit = defineEmits<{ close: [], submit: [input: CompleteInput, done: (ok: boolean) => void] }>()
 const mode = useDataMode()
+const { t } = useI18n()
 
 type Kind = EvidenceKind | 'none'
 const kinds: Kind[] = ['link', 'note', 'file', 'certificate', 'none']
@@ -99,6 +99,7 @@ const errorKey = ref('')
 const saving = ref(false)
 const celebrating = ref(0)
 const remaining = ref(0)
+const celebrateHeading = computed(() => (remaining.value === 0 ? t('track.allDone') : t('complete.celebrateTitle')))
 
 watch(() => props.open, (open) => {
   if (!open) return
@@ -150,6 +151,7 @@ function submit() {
     }
     remaining.value = props.remainingAfter
     celebrating.value += 1
+    nextTick(() => document.getElementById('celebrate-continue')?.focus())
   })
 }
 

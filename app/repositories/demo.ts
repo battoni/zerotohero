@@ -103,6 +103,7 @@ export function buildDemoState(files: Record<string, string>, now: Date): DemoSt
           dueDate: m.done ? null : m.date,
           completedAt: m.done ? (shifted ?? new Date(now.getTime() - 3 * DAY).toISOString()) : null,
           timeSpentMinutes: m.done ? 60 : null,
+          evidenceCount: 0,
         }
       }),
     }))
@@ -295,10 +296,16 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .slice(0, 5)
         .map(e => ({ ...clone(e), milestoneTitle: ms.find(m => m.id === e.milestoneId)!.title }))
+      const counts = new Map<string, number>()
+      for (const e of state.evidences) counts.set(e.milestoneId, (counts.get(e.milestoneId) ?? 0) + 1)
       return {
         ...summary(t),
         phases: clone([...t.phases].sort((a, b) => a.position - b.position)
-          .map(p => ({ ...p, milestones: [...p.milestones].sort((a, b) => a.position - b.position) }))),
+          .map(p => ({
+            ...p,
+            milestones: [...p.milestones].sort((a, b) => a.position - b.position)
+              .map(m => ({ ...m, evidenceCount: counts.get(m.id) ?? 0 })),
+          }))),
         followers,
         isFollowing: state.follows.some(f => f.trackId === id && f.userId === state.meId),
         isOwner: t.ownerId === state.meId,
@@ -330,7 +337,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
             position: pi,
             milestones: p.milestones.map((m, mi) => ({
               id: newId('m'), phaseId, title: m.title.trim(), tag: m.tag, position: mi,
-              dueDate: m.dueDate, completedAt: m.completedAt ?? null, timeSpentMinutes: null,
+              dueDate: m.dueDate, completedAt: m.completedAt ?? null, timeSpentMinutes: null, evidenceCount: 0,
             })),
           }
         }),
@@ -374,6 +381,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
               dueDate: m.dueDate,
               completedAt: prev ? prev.completedAt : (m.completedAt ?? null),
               timeSpentMinutes: prev?.timeSpentMinutes ?? null,
+              evidenceCount: 0,
             }
           }),
         }
@@ -474,7 +482,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
           return {
             ...clone(p),
             id: phaseId,
-            milestones: p.milestones.map(m => ({ ...clone(m), id: newId('m'), phaseId, completedAt: null, timeSpentMinutes: null, dueDate: null })),
+            milestones: p.milestones.map(m => ({ ...clone(m), id: newId('m'), phaseId, completedAt: null, timeSpentMinutes: null, dueDate: null, evidenceCount: 0 })),
           }
         }),
       }

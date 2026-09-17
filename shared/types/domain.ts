@@ -23,6 +23,8 @@ export interface Milestone {
   dueDate: string | null
   completedAt: string | null
   timeSpentMinutes: number | null
+  /** Evidence attached to this milestone (0 when unknown to the viewer). */
+  evidenceCount: number
 }
 
 export interface Phase {

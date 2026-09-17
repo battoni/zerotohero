@@ -40,7 +40,7 @@
       <h2 class="font-extrabold">{{ $t('settings.demo') }}</h2>
       <p class="text-muted">{{ $t('settings.demoBody') }}</p>
       <div class="flex items-center gap-3">
-        <UiBtn data-testid="settings-demo-reset" @click="resetDemo">{{ $t('settings.demoReset') }}</UiBtn>
+        <UiBtn data-testid="settings-demo-reset" @click="confirmReset = true">{{ $t('settings.demoReset') }}</UiBtn>
         <span v-if="resetDone" class="text-sm font-bold text-mint" role="status">{{ $t('settings.demoResetDone') }}</span>
       </div>
     </section>
@@ -49,6 +49,15 @@
       <h2 class="font-extrabold">{{ $t('settings.account') }}</h2>
       <UiBtn variant="danger" data-testid="settings-signout" @click="leave">{{ $t('nav.signOut') }}</UiBtn>
     </section>
+
+    <UiConfirm
+      :open="confirmReset"
+      :title="$t('settings.demoResetTitle')"
+      :body="$t('settings.demoResetBody')"
+      :confirm-label="$t('settings.demoResetYes')"
+      @confirm="resetDemo"
+      @cancel="confirmReset = false"
+    />
   </div>
 </template>
 
@@ -68,12 +77,15 @@ const errorKey = ref('')
 const saving = ref(false)
 const saved = ref(false)
 const resetDone = ref(false)
+const confirmReset = ref(false)
 
-onMounted(async () => {
-  const p = await loadMe()
+function fillFrom(p: { handle: string, displayName: string | null } | null) {
   handle.value = p?.handle ?? ''
   name.value = p?.displayName ?? ''
-})
+}
+
+onMounted(async () => fillFrom(await loadMe()))
+watch([handle, name], () => (saved.value = false))
 
 async function changeLocale(code: Locale) {
   await setLocale(code)
@@ -96,6 +108,8 @@ async function saveProfile() {
   saving.value = true
   try {
     me.value = await repo.updateProfile({ handle: h, displayName: name.value })
+    fillFrom(me.value)
+    await nextTick()
     saved.value = true
   }
   catch (e) {
@@ -107,8 +121,9 @@ async function saveProfile() {
 }
 
 async function resetDemo() {
+  confirmReset.value = false
   useDemoRepo().reset()
-  await loadMe(true)
+  fillFrom(await loadMe(true))
   clearNuxtData()
   resetDone.value = true
 }

@@ -11,15 +11,16 @@
   --muted: #625D7C;
   --soft-line: rgba(40, 30, 90, .08);
   --shadow-soft: 0 1px 2px rgba(40, 30, 90, .05), 0 10px 30px -12px rgba(40, 30, 90, .18);
-  --mint: #10B77F;
+  /* Light theme: text and fills pass WCAG AA (≥4.5:1) with white text and on the soft tints. */
+  --mint: #0A6E4F;
   --mint-soft: #DDF6EC;
-  --violet: #6B4EFF;
+  --violet: #5B3FE6;
   --violet-soft: #E7E2FF;
-  --coral: #FF6A4D;
+  --coral: #B3321A;
   --coral-soft: #FFE4DE;
-  --sky: #1F95F2;
+  --sky: #0B63A8;
   --sky-soft: #DDEFFD;
-  --sun: #F5A300;
+  --sun: #8A5300;
   --sun-soft: #FFF0D1;
   --on-color: #FFFFFF;
 }
@@ -35,7 +36,7 @@
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -12px rgba(0, 0, 0, .6);
     --mint: #34D399;
     --mint-soft: #123527;
-    --violet: #8F78FF;
+    --violet: #9D8AFF;
     --violet-soft: #29224F;
     --coral: #FF8266;
     --coral-soft: #3D1F19;
@@ -43,6 +44,8 @@
     --sky-soft: #132E45;
     --sun: #FFBC3B;
     --sun-soft: #3A2C0E;
+    /* Dark theme fills are bright, so text on them is dark. */
+    --on-color: #120F1F;
   }
 }
 
@@ -75,18 +78,19 @@
 
 @layer base {
   html, body { background: var(--bg); color: var(--ink); }
-  body { font-family: var(--font-sans); font-size: 15px; line-height: 1.55; }
+  body { font-family: var(--font-sans); font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; }
   h1, h2, h3, h4 { text-wrap: balance; letter-spacing: -.01em; }
   :focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
 }
 
 @layer components {
   /* Track cover gradients — one per track_color enum value. */
-  .cover-violet { background: linear-gradient(135deg, #6B4EFF, #9B6BFF); }
-  .cover-coral { background: linear-gradient(135deg, #FF6A4D, #FF9B5E); }
-  .cover-sky { background: linear-gradient(135deg, #1F95F2, #3CC8E8); }
-  .cover-mint { background: linear-gradient(135deg, #0FA878, #4FD1A0); }
-  .cover-sun { background: linear-gradient(135deg, #F59E0B, #FFC94D); }
+  /* Same in both themes; white text stays ≥4.5:1 across the whole gradient. */
+  .cover-violet { background: linear-gradient(135deg, #5B3FE6, #7A55F0); }
+  .cover-coral { background: linear-gradient(135deg, #B3321A, #C23E20); }
+  .cover-sky { background: linear-gradient(135deg, #0B63A8, #1476C4); }
+  .cover-mint { background: linear-gradient(135deg, #0A6E4F, #0C8561); }
+  .cover-sun { background: linear-gradient(135deg, #8A5300, #A66500); }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   .field {
     border-radius: 12px;

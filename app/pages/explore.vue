@@ -7,9 +7,9 @@
         <input id="explore-search" v-model="search" type="search" class="field bg-surface! shadow-soft" :placeholder="$t('explore.searchPlaceholder')" data-testid="explore-search">
       </label>
     </div>
-    <div class="flex flex-wrap gap-2" role="tablist">
+    <div class="flex flex-wrap gap-2" role="group" :aria-label="$t('explore.filtersLabel')">
       <button
-        v-for="f in FILTERS" :key="f" type="button" role="tab" :aria-selected="filter === f"
+        v-for="f in FILTERS" :key="f" type="button" :aria-pressed="filter === f"
         class="rounded-full px-3.5 py-1.5 text-[13px] font-semibold"
         :class="filter === f ? 'bg-ink text-surface' : 'bg-surface-2 text-muted'"
         :data-testid="`explore-filter-${f}`"
@@ -29,16 +29,15 @@
               <UiAvatar :profile="tr.owner" :size="24" />
               {{ tr.ownerId === me?.id ? $t('explore.yours') : (tr.owner.displayName || tr.owner.handle) }}
             </span>
-            <span class="text-[13px] text-muted">{{ $t('explore.usedBy', { count: tr.copiesCount }) }}</span>
+            <span class="text-[13px] text-muted">{{ $t('explore.usedBy', { count: tr.copiesCount }, tr.copiesCount) }}</span>
           </div>
           <UiBtn
             v-if="tr.ownerId !== me?.id"
-            variant="primary" size="sm" class="mt-2 self-start"
-            :disabled="copying === tr.id"
+            variant="primary" size="sm" class="relative z-[2] mt-2 self-start"
+            :to="localePath(`/tracks/new?from=${tr.id}`)"
             :data-testid="`explore-use-${tr.id}`"
-            @click.prevent.stop="use(tr.id)"
           >
-            {{ copying === tr.id ? $t('explore.copying') : $t('explore.use') }}
+            {{ $t('explore.use') }}
           </UiBtn>
         </TrackCard>
       </div>
@@ -59,7 +58,6 @@ const FILTERS: ExploreFilter[] = ['popular', 'recent', 'friends']
 const search = ref('')
 const debounced = ref('')
 const filter = ref<ExploreFilter>('popular')
-const copying = ref<string | null>(null)
 
 let timer: ReturnType<typeof setTimeout> | undefined
 watch(search, (v) => {
@@ -72,14 +70,4 @@ const { data, error, refresh } = useAsyncData('explore', async () => {
   return repo.explore({ search: debounced.value, filter: filter.value })
 }, { server: false, watch: [debounced, filter] })
 
-async function use(id: string) {
-  copying.value = id
-  try {
-    const newId = await repo.copyTrack(id)
-    await navigateTo(localePath(`/tracks/${newId}/edit`))
-  }
-  finally {
-    copying.value = null
-  }
-}
 </script>

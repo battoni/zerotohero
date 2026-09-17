@@ -19,10 +19,22 @@
     "demo": "Try the demo",
     "hereLabel": "you are here",
     "steps": {
-      "create": { "title": "Create a trail", "body": "Give it a name, a goal and, if you like, a date. Start from scratch or copy someone's template." },
-      "split": { "title": "Break it into milestones", "body": "Group milestones into phases. Each milestone is something you can finish." },
-      "tick": { "title": "Tick them off", "body": "Attach evidence when you finish: a link, a note or the certificate." },
-      "share": { "title": "Share", "body": "Publish your trail as a template, follow friends and cheer them on." }
+      "create": {
+        "title": "Create a trail",
+        "body": "Give it a name, a goal and, if you like, a date. Start from scratch or copy someone's template."
+      },
+      "split": {
+        "title": "Break it into milestones",
+        "body": "Group milestones into phases. Each milestone is something you can finish."
+      },
+      "tick": {
+        "title": "Tick them off",
+        "body": "Attach evidence when you finish: a link, a note or the certificate."
+      },
+      "share": {
+        "title": "Share",
+        "body": "Publish your trail as a template, follow friends and cheer them on."
+      }
     }
   },
   "login": {
@@ -34,10 +46,10 @@
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
-    "error": "Could not sign in: {message}",
     "demoTitle": "Just looking?",
     "demoBody": "Explore with sample trails and friends. Everything stays in this browser.",
-    "demoCta": "Explore the demo"
+    "demoCta": "Explore the demo",
+    "errorGeneric": "Could not sign in. Check your details and try again."
   },
   "confirm": {
     "loading": "Signing you in…"
@@ -50,7 +62,8 @@
     "newTrack": "New trail",
     "newTrackHint": "from scratch or from a template",
     "empty": "No trails yet. Create your first one, or copy a template from Explore.",
-    "emptyCta": "Browse templates"
+    "emptyCta": "Browse templates",
+    "greetingNoName": "Ready to tick another one?"
   },
   "track": {
     "next": "Next milestone",
@@ -93,7 +106,11 @@
     "by": "by {name}",
     "forecast": "At this pace you finish around {date}.",
     "forecastLate": "At this pace you finish around {date}, after your target.",
-    "loadError": "Could not load this trail. Try again."
+    "loadError": "Could not load this trail. Try again.",
+    "reopenTitle": "Reopen this milestone?",
+    "reopenBody": "Its evidence and time spent will be deleted.",
+    "reopenYes": "Reopen and delete",
+    "actionError": "That did not work. Try again."
   },
   "complete": {
     "title": "Complete milestone",
@@ -122,7 +139,8 @@
     "errorUrl": "Add a link that starts with http:// or https://.",
     "errorNote": "Write the note.",
     "errorFile": "Pick a PDF or image up to 10 MB.",
-    "errorSave": "Could not save. Try again."
+    "errorSave": "Could not save. Try again.",
+    "evidenceLabel": "Kind of evidence"
   },
   "editor": {
     "newTitle": "New trail",
@@ -153,12 +171,12 @@
     "pasteLabel": "Your list",
     "pastePlaceholder": "# Trail name\n## Phase\n- [ ] Milestone #tag {'@'}2026-12-01",
     "pasteApply": "Use this list",
-    "pastePreview": "{phases} phase, {milestones} milestones | {phases} phases, {milestones} milestones",
+    "pastePreview": "{phases} · {milestones}",
     "pasteErrors": "Some lines need attention:",
     "pasteError": {
       "empty": "The list is empty.",
       "unknown_meta": "Line {line}: unknown setting \"{value}\".",
-      "invalid_color": "Line {line}: \"{value}\" is not a colour we know.",
+      "invalid_color": "Line {line}: \"{value}\" is not a color we know.",
       "invalid_visibility": "Line {line}: \"{value}\" is not a visibility option.",
       "invalid_date": "Line {line}: \"{value}\" is not a valid date (use YYYY-MM-DD).",
       "too_long": "Line {line}: the text was shortened.",
@@ -187,7 +205,14 @@
     "errorPhases": "Every phase needs a name and every milestone needs a title.",
     "errorEmpty": "Add at least one phase.",
     "errorSave": "Could not save the trail. Try again.",
-    "completedKept": "completed"
+    "completedKept": "completed",
+    "pastePhases": "{count} phase | {count} phases",
+    "pasteMilestones": "{count} milestone | {count} milestones",
+    "removeDoneTitle": "Remove a completed milestone?",
+    "removeDoneBody": "\"{title}\" is done. Saving will delete its completion and evidence.",
+    "removeDoneYes": "Yes, remove it",
+    "startLabel": "How to start",
+    "keep": "Keep it"
   },
   "explore": {
     "title": "Explore trails",
@@ -199,11 +224,12 @@
       "friends": "From friends"
     },
     "milestones": "{count} milestone | {count} milestones",
-    "usedBy": "used by {count}",
+    "usedBy": "used by {count} person | used by {count} people",
     "use": "Use as template",
     "copying": "Copying…",
     "empty": "Nothing here yet. Try another search.",
-    "yours": "Yours"
+    "yours": "Yours",
+    "filtersLabel": "Order and filter"
   },
   "friends": {
     "title": "Friends",
@@ -230,11 +256,14 @@
     "add": "Add friend",
     "sent": "Request sent",
     "remove": "Remove",
-    "noResults": "Nobody found."
+    "noResults": "Nobody found.",
+    "searchLabel": "Find people",
+    "removeTitle": "Remove {name} from your friends?",
+    "removeYes": "Yes, remove"
   },
   "profile": {
     "trailsActive": "{count} active trail | {count} active trails",
-    "trailsDone": "{count} finished",
+    "trailsDone": "{count} finished | {count} finished",
     "milestones": "milestones completed",
     "evidence": "evidence",
     "certificates": "certificates",
@@ -247,7 +276,8 @@
     "acceptRequest": "Accept request",
     "friends": "Friends",
     "notFound": "No one here with that handle.",
-    "editProfile": "Edit profile"
+    "editProfile": "Edit profile",
+    "weekTitle": "{count} milestone that week | {count} milestones that week"
   },
   "welcome": {
     "title": "Welcome! Pick your handle",
@@ -271,7 +301,10 @@
     "demoBody": "Put the sample trails back the way they started.",
     "demoReset": "Reset demo",
     "demoResetDone": "Demo reset",
-    "account": "Account"
+    "account": "Account",
+    "demoResetTitle": "Reset the demo?",
+    "demoResetBody": "Everything you changed in the demo will be lost.",
+    "demoResetYes": "Yes, reset"
   },
   "time": {
     "justNow": "just now"

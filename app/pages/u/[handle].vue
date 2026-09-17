@@ -11,7 +11,7 @@
               <span class="text-[13px] text-muted">
                 @{{ detail.profile.handle }} ·
                 {{ $t('profile.trailsActive', { count: detail.activeTracks }, detail.activeTracks) }} ·
-                {{ $t('profile.trailsDone', { count: detail.finishedTracks }) }}
+                {{ $t('profile.trailsDone', { count: detail.finishedTracks }, detail.finishedTracks) }}
               </span>
             </div>
             <UiBtn v-if="detail.friendState === 'self'" size="sm" :to="localePath('/settings')">{{ $t('profile.editProfile') }}</UiBtn>
@@ -35,7 +35,7 @@
                 v-for="(c, i) in weeks" :key="i"
                 class="aspect-square rounded-[4px]"
                 :class="heatClass[heatLevel(c, maxWeek)]"
-                :title="`${c}`"
+                :title="$t('profile.weekTitle', { count: c }, c)"
               />
             </div>
           </div>
@@ -47,7 +47,7 @@
           <NuxtLink
             v-for="tr in detail.tracks" :key="tr.id"
             :to="localePath(`/tracks/${tr.id}`)"
-            class="flex items-center gap-3 rounded-2xl bg-surface-2 p-2.5 hover:brightness-[.98]"
+            class="flex min-w-0 items-center gap-3 rounded-2xl bg-surface-2 p-2.5 hover:brightness-[.98]"
           >
             <span class="grid size-11 shrink-0 place-items-center rounded-xl text-xl" :class="`cover-${tr.color}`" aria-hidden="true">{{ tr.emoji }}</span>
             <span class="flex min-w-0 flex-1 flex-col">
@@ -88,8 +88,9 @@ async function add() {
   try {
     await repo.requestFriend(detail.value.profile.id)
   }
-  finally {
-    await refresh()
+  catch {
+    // The refreshed state below shows whether the request went through.
   }
+  await refresh()
 }
 </script>
