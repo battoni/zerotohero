@@ -26,17 +26,17 @@ export default defineNuxtConfig({
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
       devLogin: process.env.NUXT_PUBLIC_DEV_LOGIN || 'false',
+      // `demo` runs entirely in the browser with seeded data; the default when no Supabase URL is set.
+      dataMode: process.env.NUXT_PUBLIC_DATA_MODE || (process.env.NUXT_PUBLIC_SUPABASE_URL ? 'supabase' : 'demo'),
     },
   },
 
   supabase: {
-    redirectOptions: {
-      login: '/login',
-      callback: '/confirm',
-      include: ['/tracks(/*)?', '/explore', '/friends', '/settings', '/welcome', '/pt-BR/tracks(/*)?', '/pt-BR/explore', '/pt-BR/friends', '/pt-BR/settings', '/pt-BR/welcome'],
-      exclude: [],
-      saveRedirectToCookie: true,
-    },
+    // Placeholders keep demo mode (no backend) booting; real values come from .env.
+    url: process.env.NUXT_PUBLIC_SUPABASE_URL || 'https://demo.supabase.invalid',
+    key: process.env.NUXT_PUBLIC_SUPABASE_KEY || 'demo-publishable-key',
+    // Route protection lives in app/middleware/auth.global.ts so it covers demo mode too.
+    redirect: false,
     types: '~~/shared/types/database.ts',
   },
 

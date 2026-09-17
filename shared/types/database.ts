@@ -113,6 +113,8 @@ export interface Database {
     }
     Functions: {
       copy_track: { Args: { source: string }, Returns: string }
+      create_track: { Args: { payload: Json }, Returns: string }
+      update_track: { Args: { p_id: string, payload: Json }, Returns: undefined }
       are_friends: { Args: { a: string, b: string }, Returns: boolean }
       can_view_track: { Args: { p_track_id: string }, Returns: boolean }
     }
