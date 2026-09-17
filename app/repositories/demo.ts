@@ -165,12 +165,15 @@ export function localStorageDemo(key = `zth_demo_v${DEMO_STATE_VERSION}`): DemoS
   return {
     load() {
       try {
+        // Earlier versions lived under their own keys; they are never read again.
+        for (let v = 1; v < DEMO_STATE_VERSION; v++) globalThis.localStorage?.removeItem(`zth_demo_v${v}`)
         const raw = globalThis.localStorage?.getItem(key)
         if (!raw) return null
         const parsed = JSON.parse(raw) as DemoState
         // Anything older or malformed starts over from the seed.
-        const ok = parsed?.version === DEMO_STATE_VERSION && Array.isArray(parsed.tracks) && Array.isArray(parsed.activities)
-          && Array.isArray(parsed.profiles) && parsed.profiles.some(p => p.id === parsed.meId)
+        const lists = [parsed?.tracks, parsed?.activities, parsed?.profiles, parsed?.evidences, parsed?.friendships, parsed?.follows, parsed?.kudos]
+        const ok = parsed?.version === DEMO_STATE_VERSION && lists.every(Array.isArray)
+          && parsed.profiles.some(p => p.id === parsed.meId)
         return ok ? parsed : null
       }
       catch {

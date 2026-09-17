@@ -15,7 +15,7 @@ Protótipo aprovado (6 telas): artefato "The Way Out", nome antigo do projeto.
 |---|---|---|
 | Landing | `/` | Apresenta o app a quem não está logado e leva ao login |
 | Login | `/login` | OAuth (Google, GitHub). Em dev, também e-mail e senha para o usuário de teste. No modo demo, só o botão do demo |
-| Confirmação | `/confirm` | Volta do OAuth: aplica o idioma do perfil e segue para `/tracks` |
+| Confirmação | `/confirm` | Volta do OAuth, no idioma em que o login começou: aplica o idioma do perfil (se já houve onboarding) e segue para `/tracks` |
 | Onboarding | `/welcome` | Escolher o handle, o nome exibido e o idioma. Acontece uma vez só |
 | Minhas trilhas | `/tracks` | Cards com capa, anel de progresso, próximo marco e resumo da semana |
 | Criar trilha | `/tracks/new` | Identidade (nome, objetivo, data, emoji, cor, visibilidade) e editor de fases e marcos. Três formas de começar: em branco, de um modelo ou colando uma lista |
@@ -49,7 +49,7 @@ Protótipo aprovado (6 telas): artefato "The Way Out", nome antigo do projeto.
 
 - `@nuxtjs/i18n`, com os locales **`en`** (padrão) e **`pt-BR`**.
 - Estratégia `prefix_except_default`: `/tracks` fica em inglês e `/pt-BR/tracks` em português.
-- `detectBrowserLanguage` com cookie. Logo após o login, o idioma salvo no perfil (`profiles.locale`) é aplicado; depois disso vale a última escolha, no seletor do topo (cookie) ou em Ajustes (cookie e perfil).
+- `detectBrowserLanguage` com cookie. Logo após o login, quem já fez o onboarding recebe o idioma salvo no perfil (`profiles.locale`); quem está chegando mantém o idioma em que entrou; depois disso vale a última escolha, no seletor do topo (cookie) ou em Ajustes (cookie e perfil).
 - **Nenhum texto de UI fica hardcoded.** As chaves ficam em `i18n/locales/{en,pt-BR}.json`, agrupadas por tela (`tracks.card.nextMilestone`).
 - Conteúdo criado pelo usuário **não é traduzido**. Datas e números saem via `Intl`, conforme o locale.
 - Os testes verificam `data-testid`, nunca o texto traduzido.
@@ -265,7 +265,7 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 | `SUPABASE_PROJECT_REF` | `.env` local | `npm run db:types` |
 | `NUXT_PUBLIC_DATA_MODE` | `.env` e Vercel | `demo` ou `supabase` (padrão: `supabase` se houver URL) |
 | `NUXT_PUBLIC_DEV_LOGIN` | `.env` (preview/E2E) | Mostra o login por senha fora do `nuxt dev` |
-| `NUXT_PUBLIC_SITE_URL` | `.env` e Vercel | Redirect de OAuth (`<site>/confirm`) e base de URLs no build |
+| `NUXT_PUBLIC_SITE_URL` | `.env` e Vercel | Redirect de OAuth (`<site>/confirm` e `<site>/pt-BR/confirm`) e base de URLs no build |
 | `NUXT_PUBLIC_I18N_BASE_URL` | Vercel (runtime) | Canonical e `hreflang`; no build vem de `NUXT_PUBLIC_SITE_URL` |
 | `E2E_BASE_URL` | CI ou local | Roda o E2E contra um servidor já no ar, sem subir o dev |
 

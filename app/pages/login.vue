@@ -61,7 +61,7 @@ async function oauth(provider: 'google' | 'github') {
   error.value = ''
   const { error: e } = await supabase.auth.signInWithOAuth({
     provider,
-    options: { redirectTo: `${config.public.siteUrl}/confirm` },
+    options: { redirectTo: `${config.public.siteUrl}${localePath('/confirm')}` },
   })
   if (e) error.value = e.message
 }

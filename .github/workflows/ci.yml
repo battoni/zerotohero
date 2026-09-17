@@ -24,6 +24,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run gates
+      # Calendar-date logic must hold far from UTC.
+      - run: TZ=Pacific/Kiritimati npx vitest run tests/unit
+      - run: TZ=Pacific/Pago_Pago npx vitest run tests/unit
       - run: npm run build
 
   e2e:

@@ -31,7 +31,7 @@ npm run dev
 
 The app reads `NUXT_SUPABASE_SECRET_KEY` at runtime only (signed links to evidence files). Set it in the host's environment, never at build time.
 
-Enable the Google and GitHub providers in Supabase Auth (and email/password for the seeded demo and e2e users), with `<site>/confirm` as the redirect URL.
+Enable the Google and GitHub providers in Supabase Auth (and email/password for the seeded demo and e2e users), with `<site>/confirm` and `<site>/pt-BR/confirm` as redirect URLs.
 
 ## Quality gates
 

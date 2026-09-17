@@ -26,12 +26,17 @@ export function useSession() {
     return me.value
   }
 
-  /** Right after a real sign-in: the language saved in the profile wins, then go home. */
+  /**
+   * Right after a real sign-in: a returning user gets the language saved in the
+   * profile; a new one keeps the language they signed up in (onboarding saves it).
+   */
   async function afterSignIn() {
     const { locale, setLocale } = nuxtApp.$i18n
     const profile = await loadMe(true).catch(() => null)
-    if (profile?.locale && profile.locale !== locale.value) await setLocale(profile.locale)
-    await navigateTo(nuxtApp.$localePath('/tracks'))
+    const target = profile?.onboarded ? profile.locale : locale.value
+    // Navigate first: setLocale would otherwise re-navigate the current page (and remount it).
+    await navigateTo(nuxtApp.$localePath('/tracks', target))
+    if (target !== locale.value) await setLocale(target)
   }
 
   function enterDemo() {

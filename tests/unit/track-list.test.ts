@@ -127,8 +127,8 @@ describe('parseTrackList — tags, bare headings, meta case and future dates', (
     expect(track.phases[0]!.milestones.map(m => m.title)).toEqual(['Due: finish reading', 'b'])
   })
   it('flags completion dates in the future and drops them', () => {
-    // now is midday UTC, so "today" is 2026-09-17 in every zone from UTC-11 to UTC+11.
-    const { track, errors } = parseTrackList('- [x] done @2026-09-17\n- [x] tomorrow @2026-09-18\n- [ ] due @2026-12-01', { now })
+    const localNoon = new Date(2026, 8, 17, 12)
+    const { track, errors } = parseTrackList('- [x] done @2026-09-17\n- [x] tomorrow @2026-09-18\n- [ ] due @2026-12-01', { now: localNoon })
     expect(errors).toEqual([{ line: 2, code: 'future_date', value: '2026-09-18' }])
     expect(track.phases[0]!.milestones.map(m => m.date)).toEqual(['2026-09-17', null, '2026-12-01'])
   })

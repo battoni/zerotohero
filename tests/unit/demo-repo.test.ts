@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createDemoRepository, DEMO_ME } from '../../app/repositories/demo'
+import { buildDemoState, createDemoRepository, DEMO_ME, DEMO_STATE_VERSION, localStorageDemo } from '../../app/repositories/demo'
 import type { TrackInput } from '../../shared/types/domain'
 
 const dir = join(__dirname, '..', '..', 'seed', 'demo')
@@ -105,6 +105,12 @@ describe('trails', () => {
   it('rejects completion dates in the future', async () => {
     const future = { ...input, phases: [{ title: 'P', milestones: [{ title: 'a', tag: null, dueDate: null, completedAt: '2026-12-01T00:00:00.000Z' }] }] }
     await expect(repo.createTrack(future)).rejects.toMatchObject({ code: 'invalid', message: 'completed_at' })
+  })
+
+  it('rejects a completion dated in the future', async () => {
+    const id = await repo.createTrack(input)
+    const m = (await repo.getTrack(id))!.phases[0]!.milestones[0]!
+    await expect(repo.completeMilestone(m.id, { completedAt: '2026-10-01T12:00:00.000Z' })).rejects.toMatchObject({ code: 'invalid' })
   })
 
   it('rejects invalid minutes', async () => {
@@ -244,5 +250,40 @@ describe('social', () => {
     b.reset()
     const c = createDemoRepository({ files, now: () => NOW, storage })
     expect(await c.getTrack(id)).toBeNull()
+  })
+})
+
+describe('stored demo state', () => {
+  const store = new Map<string, string>()
+  const fake = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => void store.set(k, v),
+    removeItem: (k: string) => void store.delete(k),
+  }
+
+  it('loads the current version and drops older or malformed state', () => {
+    const g = globalThis as { localStorage?: unknown }
+    const previous = g.localStorage
+    g.localStorage = fake
+    try {
+      const storage = localStorageDemo()
+      const state = buildDemoState(files, NOW)
+      storage.save(state)
+      expect(storage.load()?.meId).toBe(DEMO_ME)
+
+      store.set('zth_demo_v1', '{}')
+      const key = `zth_demo_v${DEMO_STATE_VERSION}`
+      store.set(key, JSON.stringify({ ...state, kudos: undefined }))
+      expect(storage.load()).toBeNull()
+      expect(store.has('zth_demo_v1')).toBe(false)
+
+      store.set(key, JSON.stringify({ ...state, version: DEMO_STATE_VERSION - 1 }))
+      expect(storage.load()).toBeNull()
+      store.set(key, 'not json')
+      expect(storage.load()).toBeNull()
+    }
+    finally {
+      g.localStorage = previous
+    }
   })
 })
