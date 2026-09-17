@@ -11,7 +11,14 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Zero to Hero',
+      meta: [
+        { name: 'description', content: 'Build a study trail, break it into milestones and tick them off one by one.' },
+        { name: 'theme-color', content: '#5B3FE6' },
+        { property: 'og:title', content: 'Zero to Hero' },
+        { property: 'og:description', content: 'Study trails with milestones, evidence and friends.' },
+      ],
       link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
