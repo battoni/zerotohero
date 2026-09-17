@@ -55,7 +55,7 @@
               <h2 class="font-extrabold">{{ $t('track.followers') }}</h2>
               <div v-if="track.followers.length" class="flex flex-wrap items-center gap-2">
                 <div class="flex">
-                  <NuxtLink v-for="f in track.followers.slice(0, 6)" :key="f.id" :to="localePath(`/u/${f.handle}`)" class="-ml-2 rounded-full ring-2 ring-surface first:ml-0">
+                  <NuxtLink v-for="f in track.followers.slice(0, 6)" :key="f.id" :to="localePath(`/u/${f.handle}`)" class="-ml-1.5 rounded-full ring-2 ring-surface first:ml-0" :aria-label="f.displayName || f.handle">
                     <UiAvatar :profile="f" />
                   </NuxtLink>
                 </div>

@@ -12,12 +12,12 @@
       <UiBtn variant="primary" :to="localePath('/tracks/new')" data-testid="home-new">+ {{ $t('home.newTrack') }}</UiBtn>
     </div>
 
-    <div class="flex flex-wrap items-center gap-3 rounded-2xl bg-mint-soft px-4 py-3" data-testid="home-week">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl bg-mint-soft px-4 py-3" data-testid="home-week">
       <template v-if="weekCount">
         <b class="text-mint">{{ $t('home.weekStrip', { count: weekCount }, weekCount) }}</b>
       </template>
       <span v-else class="font-semibold">{{ $t('home.weekStripEmpty') }}</span>
-      <span v-if="friendsMoving" class="text-muted">· {{ $t('home.friendsMoving') }}</span>
+      <span v-if="friendsMoving" class="text-muted">{{ $t('home.friendsMoving') }}</span>
     </div>
 
     <UiState :pending="data === undefined && !error" :error="error" @retry="refresh">
