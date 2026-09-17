@@ -1,11 +1,11 @@
 // In-memory repository for demo mode. Mirrors the Supabase rules (visibility,
 // ownership, activities, kudos) so the product behaves the same without a backend.
 // Pure: no Nuxt imports, so unit tests can load it directly.
-import { parseTrackList } from '../../shared/utils/track-list'
+import { parseTrackList } from '~~/shared/utils/track-list'
 import type {
   Evidence, FeedItem, FriendState, Friends, Locale, Milestone, Phase, Profile,
   ProfileDetail, Track, TrackDetail, TrackInput, TrackSummary,
-} from '../../shared/types/domain'
+} from '~~/shared/types/domain'
 import { RepoError, type DataRepository } from './types'
 
 interface Friendship { requesterId: string, addresseeId: string, status: 'pending' | 'accepted' }

@@ -2,11 +2,11 @@
 // shapes queries and maps rows to domain types. Composite writes go through the
 // create_track / update_track / copy_track RPCs so they stay atomic.
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '../../shared/types/database'
+import type { Database } from '~~/shared/types/database'
 import type {
   CompleteInput, Evidence, FeedItem, FriendState, Friends, Milestone, Phase, Profile, ProfileDetail,
   Track, TrackDetail, TrackInput, TrackSummary,
-} from '../../shared/types/domain'
+} from '~~/shared/types/domain'
 import { RepoError, type DataRepository } from './types'
 
 type Client = SupabaseClient<Database>
