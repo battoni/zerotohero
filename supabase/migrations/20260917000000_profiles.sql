@@ -20,7 +20,7 @@ create policy "users update their own profile"
   on public.profiles for update to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()));
 
--- A provisional handle (user_<8 hex>) until onboarding picks the real one.
+-- A provisional handle (user_<12 hex>) until onboarding picks the real one.
 create function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -31,7 +31,7 @@ begin
   insert into public.profiles (id, handle, display_name, avatar_url)
   values (
     new.id,
-    'user_' || substr(replace(new.id::text, '-', ''), 1, 8),
+    'user_' || substr(replace(new.id::text, '-', ''), 1, 12),
     coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
     new.raw_user_meta_data ->> 'avatar_url'
   );

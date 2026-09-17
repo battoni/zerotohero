@@ -31,6 +31,7 @@
     "node": ">=22"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.3.2",
     "@playwright/test": "^1.63.0",
@@ -42,6 +43,7 @@
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
+    "uuid": "^14.0.2",
     "vitest": "^4.1.11",
     "vue-tsc": "^3.3.11"
   }
