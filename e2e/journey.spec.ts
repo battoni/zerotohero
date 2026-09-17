@@ -162,6 +162,8 @@ test('saving a pasted list works without applying it first', async ({ page }) =>
   await enterDemo(page)
   await go(page, '/tracks/new')
   await page.getByTestId('editor-start-paste').click()
+  // The format hint has literal pipes (not plural separators).
+  await expect(page.locator('#editor-paste-hint')).toContainText('emoji: 🦀 | color: coral | visibility: public')
   await page.getByTestId('editor-paste').fill('# Quick list\n## Only phase\n- one\n- two')
   await page.getByTestId('editor-save').click()
   await page.waitForURL(/\/tracks\/[^/]+$/)

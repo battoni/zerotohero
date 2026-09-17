@@ -216,7 +216,7 @@
     "startLabel": "Como começar",
     "keep": "Manter",
     "errorPhaseEmpty": "Cada fase precisa de pelo menos um marco.",
-    "pasteHint": "Um item por linha. # dá o nome da trilha, > adiciona o objetivo, ## abre uma fase e - [x] marca um marco como concluído. Depois do título, use #tag e {'@'}AAAA-MM-DD. Uma linha opcional como emoji: 🦀 | color: coral | visibility: public define a aparência."
+    "pasteHint": "Um item por linha. # dá o nome da trilha, > adiciona o objetivo, ## abre uma fase e - [x] marca um marco como concluído. Depois do título, use #tag e {'@'}AAAA-MM-DD. Uma linha opcional como emoji: 🦀 {'|'} color: coral {'|'} visibility: public define a aparência."
   },
   "explore": {
     "title": "Explorar trilhas",

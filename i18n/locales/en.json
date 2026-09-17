@@ -216,7 +216,7 @@
     "startLabel": "How to start",
     "keep": "Keep it",
     "errorPhaseEmpty": "Each phase needs at least one milestone.",
-    "pasteHint": "One item per line. # names the trail, > adds the goal, ## starts a phase, - [x] marks a milestone as done. Add #tag and {'@'}YYYY-MM-DD after the title. An optional line like emoji: 🦀 | color: coral | visibility: public sets the look."
+    "pasteHint": "One item per line. # names the trail, > adds the goal, ## starts a phase, - [x] marks a milestone as done. Add #tag and {'@'}YYYY-MM-DD after the title. An optional line like emoji: 🦀 {'|'} color: coral {'|'} visibility: public sets the look."
   },
   "explore": {
     "title": "Explore trails",
