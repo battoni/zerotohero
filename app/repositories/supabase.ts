@@ -266,8 +266,12 @@ export function createSupabaseRepository(client: Client): DataRepository {
       const { error } = await client.from('milestones')
         .update({ completed_at: null, time_spent_minutes: null }).eq('id', milestoneId)
       fail(error)
-      const { error: evError } = await client.from('evidences').delete().eq('milestone_id', milestoneId)
+      const { data: removed, error: evError } = await client.from('evidences').delete()
+        .eq('milestone_id', milestoneId).select('storage_path')
       fail(evError)
+      // Best effort: the evidence row is gone either way; a leftover file is only storage.
+      const paths = (removed ?? []).map(r => r.storage_path).filter((p): p is string => !!p)
+      if (paths.length) await client.storage.from('evidence').remove(paths)
     },
 
     async setFollowing(trackId, following) {
