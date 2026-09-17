@@ -52,7 +52,10 @@
             <NuxtLink :to="localePath(`/u/${p.handle}`)" class="flex-1 font-semibold">{{ p.displayName || p.handle }}</NuxtLink>
             <UiBtn size="sm" variant="ghost" :disabled="busy" :data-testid="`remove-${p.handle}`" @click="pendingRemove = p">{{ $t('friends.remove') }}</UiBtn>
           </div>
-          <p v-for="p in lists?.outgoing" :key="p.id" class="text-[13px] text-muted">{{ $t('friends.pending', { name: p.displayName || p.handle }) }}</p>
+          <div v-for="p in lists?.outgoing" :key="p.id" class="flex items-center justify-between gap-2 text-[13px] text-muted">
+            <span>{{ $t('friends.pending', { name: p.displayName || p.handle }) }}</span>
+            <UiBtn size="sm" variant="ghost" :disabled="busy" :data-testid="`cancel-${p.handle}`" @click="cancelRequest(p.id)">{{ $t('friends.cancelRequest') }}</UiBtn>
+          </div>
         </div>
       </aside>
     </div>
@@ -152,6 +155,7 @@ async function toggleKudos(item: FeedItem) {
 }
 
 const add = (id: string) => act(() => repo.requestFriend(id))
+const cancelRequest = (id: string) => act(() => repo.removeFriend(id))
 const respond = (id: string, accept: boolean) => act(() => repo.respondFriend(id, accept))
 async function confirmRemove() {
   const p = pendingRemove.value

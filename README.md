@@ -21,21 +21,27 @@ nvm use && npm install && npm run dev   # then click "Try the demo"
 ```bash
 nvm use            # Node 22
 npm install
-cp .env.example .env   # fill in the Supabase project values
+cp .env.example .env   # Supabase URL and publishable key; SUPABASE_SECRET_KEY for the seed
+npx supabase login
 npx supabase link --project-ref <project-ref>
 npx supabase db push   # apply supabase/migrations
 npm run seed -- --dry-run   # preview; drop the flag to seed demo users and trails
 npm run dev
 ```
 
+The app reads `NUXT_SUPABASE_SECRET_KEY` at runtime only (signed links to evidence files). Set it in the host's environment, never at build time.
+
 Enable the Google and GitHub providers in Supabase Auth (and email/password for the seeded demo and e2e users), with `<site>/confirm` as the redirect URL.
 
 ## Quality gates
 
 ```bash
-npm run gates      # lint + typecheck + i18n key parity + unit tests
-npm run test:e2e   # Playwright journey against the dev server (demo mode)
+npm run gates      # SFC parse check + lint + typecheck + i18n key parity + unit and database tests
+npx playwright install chromium   # once
+NUXT_PUBLIC_DATA_MODE=demo npm run test:e2e   # Playwright journeys in demo mode
 ```
+
+The e2e run starts the dev server, or reuses one already listening on port 3000. With Supabase values in `.env`, force demo mode as above (CI does the same).
 
 ## Docs
 

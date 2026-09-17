@@ -149,3 +149,30 @@ test('an unknown trail shows a friendly message', async ({ page }) => {
   await go(page, '/tracks/does-not-exist')
   await expect(page.getByTestId('track-not-found')).toBeVisible()
 })
+
+test('an unknown page shows a localized 404 with a way back', async ({ page }) => {
+  await enterDemo(page)
+  await page.goto('/pt-BR/nada-aqui')
+  await expect(page.getByTestId('error-page')).toContainText('Esta página não existe')
+  await page.getByTestId('error-back').click()
+  await expect(page).toHaveURL(/\/pt-BR\/tracks$/)
+})
+
+test('saving a pasted list works without applying it first', async ({ page }) => {
+  await enterDemo(page)
+  await go(page, '/tracks/new')
+  await page.getByTestId('editor-start-paste').click()
+  await page.getByTestId('editor-paste').fill('# Quick list\n## Only phase\n- one\n- two')
+  await page.getByTestId('editor-save').click()
+  await page.waitForURL(/\/tracks\/[^/]+$/)
+  await expect(page.getByTestId('track-title')).toHaveText('Quick list')
+})
+
+test('a sent friend request can be cancelled', async ({ page }) => {
+  await enterDemo(page)
+  await go(page, '/friends')
+  await page.getByTestId('friends-search').fill('carla')
+  await page.getByTestId(/^add-/).first().click()
+  await page.getByTestId('cancel-carla').click()
+  await expect(page.getByTestId('cancel-carla')).toHaveCount(0)
+})

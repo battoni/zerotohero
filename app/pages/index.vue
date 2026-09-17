@@ -20,7 +20,7 @@
           <circle cx="200" cy="170" r="16" fill="var(--mint)" />
           <circle cx="330" cy="100" r="18" fill="var(--surface)" stroke="var(--violet)" stroke-width="6" />
           <circle cx="410" cy="100" r="14" fill="var(--surface)" stroke="var(--surface-2)" stroke-width="5" />
-          <text x="330" y="146" text-anchor="middle" font-family="Figtree, system-ui, sans-serif" font-weight="800" font-size="15" fill="var(--violet)">{{ $t('landing.hereLabel') }}</text>
+          <text x="330" y="66" text-anchor="middle" font-family="Figtree, system-ui, sans-serif" font-weight="800" font-size="20" fill="var(--violet)">{{ $t('landing.hereLabel') }}</text>
           <circle cx="480" cy="40" r="24" fill="var(--sun)" />
           <path d="M470 40 l7 7 13-14" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
         </svg>

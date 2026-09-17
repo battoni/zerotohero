@@ -29,11 +29,11 @@
       },
       "tick": {
         "title": "Vá riscando",
-        "body": "Ao concluir, anexe a evidência: um link, uma nota ou o certificado."
+        "body": "Ao concluir, anexe a evidência: um link, uma anotação ou o certificado."
       },
       "share": {
         "title": "Compartilhe",
-        "body": "Publique a trilha como modelo, acompanhe amigos e mande um \"boa!\"."
+        "body": "Publique a trilha como modelo, acompanhe amigos e aplauda cada avanço."
       }
     }
   },
@@ -92,14 +92,14 @@
     "following": "Seguindo",
     "useTemplate": "Usar como modelo",
     "completeWithEvidence": "Concluir com evidência",
-    "followers": "Seguindo esta trilha",
+    "followers": "Quem segue esta trilha",
     "noFollowers": "Ninguém ainda. Deixe pública para ser encontrada.",
     "evidence": "Últimas evidências",
     "noEvidence": "As evidências que você anexar aparecem aqui.",
     "markDone": "Concluir: {title}",
     "markOpen": "Reabrir: {title}",
     "due": "até {date}",
-    "doneOn": "feito em {date}",
+    "doneOn": "concluído em {date}",
     "phaseCount": "{done}/{total}",
     "notFound": "Esta trilha não existe ou não foi compartilhada com você.",
     "back": "Voltar para minhas trilhas",
@@ -110,21 +110,22 @@
     "reopenTitle": "Reabrir este marco?",
     "reopenBody": "A evidência e o tempo gasto serão apagados.",
     "reopenYes": "Reabrir e apagar",
-    "actionError": "Não deu certo. Tente de novo."
+    "actionError": "Não deu certo. Tente de novo.",
+    "noFollowersPublic": "Ninguém ainda."
   },
   "complete": {
     "title": "Concluir marco",
     "evidence": "Evidência",
     "kinds": {
       "link": "Link",
-      "note": "Nota",
+      "note": "Anotação",
       "file": "Arquivo",
       "certificate": "Certificado",
       "none": "Nenhuma"
     },
     "url": "Link",
     "urlPlaceholder": "https://…",
-    "note": "Nota",
+    "note": "Anotação",
     "file": "Arquivo (PDF ou imagem, até 10 MB)",
     "fileDemo": "Na demo, só o nome do arquivo é guardado.",
     "learned": "O que aprendi (opcional)",
@@ -133,15 +134,16 @@
     "submit": "Concluir marco",
     "saving": "Salvando…",
     "celebrateTitle": "Marco concluído!",
-    "celebrateLeft": "Falta {count} para o fim da trilha. | Faltam {count} para o fim da trilha.",
+    "celebrateLeft": "Falta {count} marco para terminar a trilha. | Faltam {count} marcos para terminar a trilha.",
     "celebrateDone": "Esse era o último. A trilha inteira está concluída!",
     "close": "Continuar",
     "errorUrl": "Coloque um link que comece com http:// ou https://.",
-    "errorNote": "Escreva a nota.",
+    "errorNote": "Escreva a anotação.",
     "errorFile": "Escolha um PDF ou imagem de até 10 MB.",
     "errorSave": "Não foi possível salvar. Tente de novo.",
     "errorMinutes": "O tempo gasto é um número inteiro de minutos.",
-    "evidenceLabel": "Tipo de evidência"
+    "evidenceLabel": "Tipo de evidência",
+    "finish": "Fechar"
   },
   "editor": {
     "newTitle": "Nova trilha",
@@ -149,7 +151,7 @@
     "name": "Nome",
     "namePlaceholder": "ex.: AWS Developer Associate",
     "goal": "Objetivo",
-    "goalPlaceholder": "Como é estar pronto?",
+    "goalPlaceholder": "Como você vai saber que terminou?",
     "date": "Data-alvo (opcional)",
     "emoji": "Emoji",
     "color": "Cor",
@@ -177,10 +179,10 @@
     "pasteError": {
       "empty": "A lista está vazia.",
       "unknown_meta": "Linha {line}: configuração desconhecida \"{value}\".",
-      "invalid_color": "Linha {line}: \"{value}\" não é uma cor conhecida.",
+      "invalid_color": "Linha {line}: \"{value}\" não é uma cor conhecida (use violet, coral, sky, mint ou sun).",
       "invalid_visibility": "Linha {line}: \"{value}\" não é uma opção de visibilidade.",
       "invalid_date": "Linha {line}: \"{value}\" não é uma data válida (use AAAA-MM-DD).",
-      "future_date": "Linha {line}: {value} está no futuro. Itens concluídos precisam de uma data passada.",
+      "future_date": "Linha {line}: {value} está no futuro; usamos a data de hoje.",
       "too_long": "Linha {line}: o texto foi encurtado.",
       "too_many_phases": "Linha {line}: cabem só 20 fases; o resto ficou de fora.",
       "too_many_milestones": "Linha {line}: cabem só 200 marcos; o resto ficou de fora."
@@ -205,7 +207,7 @@
     "update": "Salvar alterações",
     "saving": "Salvando…",
     "errorTitle": "Dê um nome à trilha.",
-    "errorPhases": "Toda fase precisa de nome e todo marco precisa de título.",
+    "errorPhases": "Toda fase precisa de um nome.",
     "errorEmpty": "Adicione pelo menos uma fase.",
     "errorSave": "Não foi possível salvar a trilha. Tente de novo.",
     "completedKept": "concluído",
@@ -215,7 +217,9 @@
     "removeDoneBody": "\"{title}\" está concluído. Ao salvar, a conclusão e a evidência serão apagadas.",
     "removeDoneYes": "Sim, remover",
     "startLabel": "Como começar",
-    "keep": "Manter"
+    "keep": "Manter",
+    "errorPhaseEmpty": "Cada fase precisa de pelo menos um marco.",
+    "pasteHint": "Um item por linha. # dá o nome da trilha, > adiciona o objetivo, ## abre uma fase e - [x] marca um marco como concluído. Depois do título, use #tag e {'@'}AAAA-MM-DD. Uma linha opcional como emoji: 🦀 | color: coral | visibility: public define a aparência."
   },
   "explore": {
     "title": "Explorar trilhas",
@@ -232,16 +236,17 @@
     "copying": "Copiando…",
     "empty": "Nada por aqui ainda. Tente outra busca.",
     "yours": "Sua",
-    "filtersLabel": "Ordenar e filtrar"
+    "filtersLabel": "Ordenar e filtrar",
+    "emptyFriends": "Nenhum amigo seu compartilhou uma trilha ainda."
   },
   "friends": {
     "title": "Amigos",
-    "feed": "O que seus amigos estão fazendo",
+    "feed": "Atividade recente",
     "feedEmpty": "Nada ainda. Adicione amigos para ver o progresso deles.",
     "feedMore": "Mostrar mais",
-    "cheer": "Boa!",
-    "cheered": "Boa! enviado",
-    "cheerCount": "{count} boa! | {count} boas!",
+    "cheer": "Aplaudir",
+    "cheered": "Aplaudido",
+    "cheerCount": "{count} aplauso | {count} aplausos",
     "activity": {
       "milestone_completed": "concluiu {milestone} em {track}",
       "track_completed": "terminou a trilha {track}",
@@ -254,16 +259,17 @@
     "decline": "Recusar",
     "pending": "Aguardando {name}",
     "list": "Seus amigos",
-    "listEmpty": "Nenhum amigo ainda.",
+    "listEmpty": "Nenhum amigo ainda. Busque pelo nome ou {'@'}usuário acima para adicionar.",
     "find": "Encontrar pessoas",
-    "findPlaceholder": "Buscar por {'@'}handle ou nome",
+    "findPlaceholder": "Buscar por {'@'}usuário ou nome",
     "add": "Adicionar",
     "sent": "Pedido enviado",
     "remove": "Remover",
     "noResults": "Ninguém encontrado.",
     "searchLabel": "Encontrar pessoas",
     "removeTitle": "Remover {name} dos seus amigos?",
-    "removeYes": "Sim, remover"
+    "removeYes": "Sim, remover",
+    "cancelRequest": "Cancelar pedido"
   },
   "profile": {
     "trailsActive": "{count} trilha ativa | {count} trilhas ativas",
@@ -279,20 +285,20 @@
     "requestSent": "Pedido enviado",
     "acceptRequest": "Aceitar pedido",
     "friends": "Amigos",
-    "notFound": "Ninguém aqui com esse handle.",
+    "notFound": "Ninguém aqui com esse nome de usuário.",
     "editProfile": "Editar perfil",
     "weekTitle": "{count} marco nessa semana | {count} marcos nessa semana"
   },
   "welcome": {
-    "title": "Boas-vindas! Escolha seu handle",
+    "title": "Boas-vindas! Escolha seu nome de usuário",
     "lede": "É por ele que os amigos te encontram. Dá para mudar depois.",
-    "handle": "Handle",
+    "handle": "Nome de usuário",
     "handleHint": "3 a 20 caracteres: letras minúsculas, números e _",
     "name": "Nome exibido",
     "language": "Idioma",
     "submit": "Vamos lá",
     "errorHandle": "Use de 3 a 20 letras minúsculas, números ou _.",
-    "errorTaken": "Esse handle já está em uso.",
+    "errorTaken": "Esse nome de usuário já está em uso.",
     "errorSave": "Não foi possível salvar. Tente de novo."
   },
   "settings": {
@@ -318,5 +324,12 @@
     "retry": "Tentar de novo",
     "close": "Fechar",
     "error": "Algo deu errado."
+  },
+  "error": {
+    "notFoundTitle": "Esta página não existe",
+    "genericTitle": "Algo deu errado",
+    "body": "O link pode estar antigo ou com erro de digitação.",
+    "back": "Voltar para minhas trilhas",
+    "home": "Ir para o início"
   }
 }

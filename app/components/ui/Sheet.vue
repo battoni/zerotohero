@@ -7,9 +7,9 @@
     @click="onBackdrop"
   >
     <div class="flex max-h-[85vh] flex-col gap-4 overflow-y-auto p-5 sm:p-6">
-      <div class="flex items-start justify-between gap-3">
+      <div class="flex items-start justify-between gap-3" :class="{ '-mb-4 h-0 overflow-visible': hideTitle }">
         <h2 :id="titleId" class="text-xl font-black" :class="{ 'sr-only': hideTitle }">{{ title }}</h2>
-        <button type="button" class="ml-auto grid size-9 shrink-0 place-items-center rounded-full bg-surface-2 text-lg font-bold" :aria-label="$t('common.close')" data-testid="sheet-close" @click="close">
+        <button type="button" class="relative z-10 ml-auto grid size-9 shrink-0 place-items-center rounded-full bg-surface-2 text-lg font-bold" :aria-label="$t('common.close')" data-testid="sheet-close" @click="close">
           ×
         </button>
       </div>
@@ -52,6 +52,8 @@ function onClosed() {
   opener = null
   nextTick(() => {
     if (target?.isConnected) target.focus()
+    // The opener can disappear (e.g. "complete next" once the trail is done): land on the page heading.
+    else document.querySelector<HTMLElement>('main h1')?.focus()
   })
 }
 

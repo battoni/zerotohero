@@ -20,7 +20,7 @@
               <template v-if="track.copiesCount"> · {{ $t('track.copiedTimes', { count: track.copiesCount }, track.copiesCount) }}</template>
               <template v-if="!track.isOwner"> · {{ $t('track.by', { name: track.owner.displayName || track.owner.handle }) }}</template>
             </span>
-            <h1 class="text-3xl font-black leading-tight sm:text-4xl" data-testid="track-title">{{ track.title }}</h1>
+            <h1 class="text-3xl font-black leading-tight outline-none sm:text-4xl" tabindex="-1" data-testid="track-title">{{ track.title }}</h1>
             <p v-if="track.goal" class="max-w-[60ch] opacity-90">{{ track.goal }}</p>
             <p v-if="forecastText" class="text-[13px] font-semibold opacity-90" data-testid="track-forecast">{{ forecastText }}</p>
             <div class="mt-2 flex flex-wrap gap-2">
@@ -63,7 +63,7 @@
                 </div>
                 <span class="text-[13px] text-muted">{{ track.followers.map(f => f.displayName || f.handle).join(', ') }}</span>
               </div>
-              <p v-else class="text-[13px] text-muted">{{ $t('track.noFollowers') }}</p>
+              <p v-else class="text-[13px] text-muted">{{ track.visibility === 'public' ? $t('track.noFollowersPublic') : $t('track.noFollowers') }}</p>
             </div>
 
             <div class="flex flex-col gap-2.5 rounded-[18px] bg-surface p-4 shadow-soft" data-testid="track-evidence">

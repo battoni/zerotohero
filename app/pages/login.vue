@@ -2,7 +2,7 @@
   <div class="mx-auto flex max-w-md flex-col gap-6 pt-16">
     <div>
       <h1 class="text-4xl font-black">{{ $t('login.title') }}</h1>
-      <p class="mt-2 text-muted">{{ $t('login.lede') }}</p>
+      <p v-if="mode !== 'demo'" class="mt-2 text-muted">{{ $t('login.lede') }}</p>
     </div>
     <div v-if="mode === 'demo'" class="flex flex-col items-start gap-3 rounded-card bg-violet-soft p-5" data-testid="login-demo">
       <h2 class="text-lg font-extrabold">{{ $t('login.demoTitle') }}</h2>

@@ -20,7 +20,7 @@
     </div>
 
     <UiState :pending="data === undefined && !error" :error="error" @retry="refresh">
-      <p v-if="!data?.length" class="text-muted" data-testid="explore-empty">{{ $t('explore.empty') }}</p>
+      <p v-if="!data?.length" class="text-muted" data-testid="explore-empty">{{ filter === 'friends' && !debounced ? $t('explore.emptyFriends') : $t('explore.empty') }}</p>
       <div v-else class="grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]" data-testid="explore-list">
         <TrackCard v-for="tr in data" :key="tr.id" :track="tr" :show-progress="false">
           <span class="text-[13px] text-muted">{{ $t('explore.milestones', { count: tr.total }, tr.total) }}</span>

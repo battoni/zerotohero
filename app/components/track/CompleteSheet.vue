@@ -68,7 +68,7 @@
       <h3 class="text-3xl font-black" aria-hidden="true">{{ celebrateHeading }}</h3>
       <p>{{ remaining === 0 ? $t('complete.celebrateDone') : $t('complete.celebrateLeft', { count: remaining }, remaining) }}</p>
       <div>
-        <UiBtn id="celebrate-continue" variant="ink" data-testid="celebrate-close" @click="onClose">{{ $t('complete.close') }}</UiBtn>
+        <UiBtn id="celebrate-continue" variant="ink" data-testid="celebrate-close" @click="onClose">{{ remaining === 0 ? $t('complete.finish') : $t('complete.close') }}</UiBtn>
       </div>
     </div>
   </UiSheet>

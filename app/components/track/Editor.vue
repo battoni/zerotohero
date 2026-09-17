@@ -1,5 +1,57 @@
 <template>
   <form class="grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)]" novalidate data-testid="track-editor" @submit.prevent="save">
+    <!-- How to start (first on phones too, before anything gets typed) -->
+    <div v-if="isNew" class="grid gap-2.5 lg:col-span-2 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]" role="group" :aria-label="$t('editor.startLabel')">
+      <button
+        v-for="s in STARTS" :key="s" type="button" :aria-pressed="start === s"
+        class="flex flex-col gap-1 rounded-2xl p-3.5 text-left"
+        :class="start === s ? 'bg-violet-soft shadow-[inset_0_0_0_2px_var(--violet)]' : 'bg-surface-2'"
+        :data-testid="`editor-start-${s}`"
+        @click="start = s"
+      >
+        <b class="font-extrabold">{{ $t(`editor.start.${s}`) }}</b>
+        <span class="text-[13px] text-muted">{{ $t(`editor.start.${s}Hint`) }}</span>
+      </button>
+    </div>
+    <!-- Paste -->
+    <div v-if="isNew && start === 'paste'" class="flex flex-col lg:col-span-2 gap-2.5 rounded-2xl bg-surface-2 p-4">
+      <label class="label">
+        {{ $t('editor.pasteLabel') }}
+        <textarea id="editor-paste" v-model="pasted" rows="8" class="field num bg-surface!" :placeholder="$t('editor.pastePlaceholder')" aria-describedby="editor-paste-hint" data-testid="editor-paste" />
+      </label>
+      <p id="editor-paste-hint" class="text-[13px] text-muted">{{ $t('editor.pasteHint') }}</p>
+      <div v-if="parsed" class="flex flex-col gap-1.5 text-[13px]">
+        <span class="font-semibold">{{ $t('editor.pastePreview', {
+          phases: $t('editor.pastePhases', { count: parsed.track.phases.length }, parsed.track.phases.length),
+          milestones: $t('editor.pasteMilestones', { count: parsedCount }, parsedCount),
+        }) }}</span>
+        <template v-if="parsed.errors.length">
+          <span class="font-bold text-coral">{{ $t('editor.pasteErrors') }}</span>
+          <ul class="list-inside list-disc text-coral" data-testid="editor-paste-errors">
+            <li v-for="(e, i) in parsed.errors.slice(0, 6)" :key="i">{{ $t(`editor.pasteError.${e.code}`, { line: e.line, value: e.value ?? '' }) }}</li>
+          </ul>
+        </template>
+      </div>
+      <div>
+        <UiBtn size="sm" variant="primary" :disabled="!parsedCount" data-testid="editor-paste-apply" @click="applyPaste">{{ $t('editor.pasteApply') }}</UiBtn>
+      </div>
+    </div>
+
+    <!-- Template -->
+    <div v-if="isNew && start === 'template'" class="flex flex-col lg:col-span-2 gap-2 rounded-2xl bg-surface-2 p-4">
+      <span class="text-[13px] font-bold text-muted">{{ $t('editor.templatePick') }}</span>
+      <p v-if="templatesPending" class="text-[13px] text-muted">{{ $t('common.loading') }}</p>
+      <p v-else-if="!templates?.length" class="text-[13px] text-muted">{{ $t('editor.templateEmpty') }}</p>
+      <div v-for="tpl in templates" :key="tpl.id" class="flex items-center justify-between gap-3 rounded-xl bg-surface px-3 py-2">
+        <span class="flex min-w-0 items-center gap-2 font-semibold">
+          <span aria-hidden="true">{{ tpl.emoji }}</span>
+          <span class="truncate">{{ tpl.title }}</span>
+          <span class="text-xs text-muted">· {{ tpl.owner.displayName || tpl.owner.handle }}</span>
+        </span>
+        <UiBtn size="sm" :data-testid="`editor-template-${tpl.id}`" @click="applyTemplate(tpl.id)">{{ $t('editor.templateUse') }}</UiBtn>
+      </div>
+    </div>
+
     <!-- Identity -->
     <div class="flex flex-col gap-3.5">
       <div class="relative flex min-h-[150px] flex-col justify-between overflow-hidden rounded-[20px] p-5 text-white transition-[background]" :class="`cover-${form.color}`" data-testid="editor-cover">
@@ -65,56 +117,6 @@
 
     <!-- Structure -->
     <div class="flex flex-col gap-3.5">
-      <div v-if="isNew" class="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]" role="group" :aria-label="$t('editor.startLabel')">
-        <button
-          v-for="s in STARTS" :key="s" type="button" :aria-pressed="start === s"
-          class="flex flex-col gap-1 rounded-2xl p-3.5 text-left"
-          :class="start === s ? 'bg-violet-soft shadow-[inset_0_0_0_2px_var(--violet)]' : 'bg-surface-2'"
-          :data-testid="`editor-start-${s}`"
-          @click="start = s"
-        >
-          <b class="font-extrabold">{{ $t(`editor.start.${s}`) }}</b>
-          <span class="text-[13px] text-muted">{{ $t(`editor.start.${s}Hint`) }}</span>
-        </button>
-      </div>
-
-      <!-- Paste -->
-      <div v-if="isNew && start === 'paste'" class="flex flex-col gap-2.5 rounded-2xl bg-surface-2 p-4">
-        <label class="label">
-          {{ $t('editor.pasteLabel') }}
-          <textarea id="editor-paste" v-model="pasted" rows="8" class="field num bg-surface!" :placeholder="$t('editor.pastePlaceholder')" data-testid="editor-paste" />
-        </label>
-        <div v-if="parsed" class="flex flex-col gap-1.5 text-[13px]">
-          <span class="font-semibold">{{ $t('editor.pastePreview', {
-            phases: $t('editor.pastePhases', { count: parsed.track.phases.length }, parsed.track.phases.length),
-            milestones: $t('editor.pasteMilestones', { count: parsedCount }, parsedCount),
-          }) }}</span>
-          <template v-if="parsed.errors.length">
-            <span class="font-bold text-coral">{{ $t('editor.pasteErrors') }}</span>
-            <ul class="list-inside list-disc text-coral" data-testid="editor-paste-errors">
-              <li v-for="(e, i) in parsed.errors.slice(0, 6)" :key="i">{{ $t(`editor.pasteError.${e.code}`, { line: e.line, value: e.value ?? '' }) }}</li>
-            </ul>
-          </template>
-        </div>
-        <div>
-          <UiBtn size="sm" variant="primary" :disabled="!parsedCount" data-testid="editor-paste-apply" @click="applyPaste">{{ $t('editor.pasteApply') }}</UiBtn>
-        </div>
-      </div>
-
-      <!-- Template -->
-      <div v-if="isNew && start === 'template'" class="flex flex-col gap-2 rounded-2xl bg-surface-2 p-4">
-        <span class="text-[13px] font-bold text-muted">{{ $t('editor.templatePick') }}</span>
-        <p v-if="templatesPending" class="text-[13px] text-muted">{{ $t('common.loading') }}</p>
-        <p v-else-if="!templates?.length" class="text-[13px] text-muted">{{ $t('editor.templateEmpty') }}</p>
-        <div v-for="tpl in templates" :key="tpl.id" class="flex items-center justify-between gap-3 rounded-xl bg-surface px-3 py-2">
-          <span class="flex min-w-0 items-center gap-2 font-semibold">
-            <span aria-hidden="true">{{ tpl.emoji }}</span>
-            <span class="truncate">{{ tpl.title }}</span>
-            <span class="text-xs text-muted">· {{ tpl.owner.displayName || tpl.owner.handle }}</span>
-          </span>
-          <UiBtn size="sm" :data-testid="`editor-template-${tpl.id}`" @click="applyTemplate(tpl.id)">{{ $t('editor.templateUse') }}</UiBtn>
-        </div>
-      </div>
 
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-extrabold">{{ $t('editor.phases') }}</h2>
@@ -249,7 +251,7 @@ function toEditPhases(phases: TrackInput['phases']): EditPhase[] {
   }))
 }
 
-const totalMilestones = computed(() => form.phases.reduce((n, p) => n + p.milestones.length, 0))
+const totalMilestones = computed(() => form.phases.reduce((n, p) => n + p.milestones.filter(m => m.title.trim()).length, 0))
 
 function move<T>(list: T[], index: number, delta: number, key: number) {
   const to = index + delta
@@ -355,6 +357,11 @@ async function applyTemplate(id: string) {
 
 function save() {
   errorKey.value = ''
+  // A pasted list that wasn't applied yet is what the user means to save.
+  if (isNew.value && start.value === 'paste' && parsedCount.value) {
+    applyPaste()
+    pasted.value = ''
+  }
   if (!form.title.trim()) {
     errorKey.value = 'editor.errorTitle'
     document.getElementById('editor-title')?.focus()
@@ -368,6 +375,10 @@ function save() {
   }
   if (phases.some(p => !p.title.trim())) {
     errorKey.value = 'editor.errorPhases'
+    return
+  }
+  if (phases.some(p => !p.milestones.length)) {
+    errorKey.value = 'editor.errorPhaseEmpty'
     return
   }
   const input: TrackInput = {

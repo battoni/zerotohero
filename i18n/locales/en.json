@@ -92,7 +92,7 @@
     "following": "Following",
     "useTemplate": "Use as template",
     "completeWithEvidence": "Complete with evidence",
-    "followers": "Following this trail",
+    "followers": "Who follows this trail",
     "noFollowers": "Nobody yet. Make it public to be found.",
     "evidence": "Latest evidence",
     "noEvidence": "Evidence you attach shows up here.",
@@ -110,7 +110,8 @@
     "reopenTitle": "Reopen this milestone?",
     "reopenBody": "Its evidence and time spent will be deleted.",
     "reopenYes": "Reopen and delete",
-    "actionError": "That did not work. Try again."
+    "actionError": "That did not work. Try again.",
+    "noFollowersPublic": "Nobody yet."
   },
   "complete": {
     "title": "Complete milestone",
@@ -141,7 +142,8 @@
     "errorFile": "Pick a PDF or image up to 10 MB.",
     "errorSave": "Could not save. Try again.",
     "errorMinutes": "Time spent is a whole number of minutes.",
-    "evidenceLabel": "Kind of evidence"
+    "evidenceLabel": "Kind of evidence",
+    "finish": "Close"
   },
   "editor": {
     "newTitle": "New trail",
@@ -152,7 +154,7 @@
     "goalPlaceholder": "What does done look like?",
     "date": "Target date (optional)",
     "emoji": "Emoji",
-    "color": "Colour",
+    "color": "Color",
     "colors": {
       "violet": "Violet",
       "coral": "Coral",
@@ -177,10 +179,10 @@
     "pasteError": {
       "empty": "The list is empty.",
       "unknown_meta": "Line {line}: unknown setting \"{value}\".",
-      "invalid_color": "Line {line}: \"{value}\" is not a color we know.",
+      "invalid_color": "Line {line}: \"{value}\" is not a color we know (use violet, coral, sky, mint or sun).",
       "invalid_visibility": "Line {line}: \"{value}\" is not a visibility option.",
       "invalid_date": "Line {line}: \"{value}\" is not a valid date (use YYYY-MM-DD).",
-      "future_date": "Line {line}: {value} is in the future. Completed items need a past date.",
+      "future_date": "Line {line}: {value} is in the future, so today's date was used.",
       "too_long": "Line {line}: the text was shortened.",
       "too_many_phases": "Line {line}: only 20 phases fit; the rest was skipped.",
       "too_many_milestones": "Line {line}: only 200 milestones fit; the rest was skipped."
@@ -205,7 +207,7 @@
     "update": "Save changes",
     "saving": "Saving…",
     "errorTitle": "Give the trail a name.",
-    "errorPhases": "Every phase needs a name and every milestone needs a title.",
+    "errorPhases": "Every phase needs a name.",
     "errorEmpty": "Add at least one phase.",
     "errorSave": "Could not save the trail. Try again.",
     "completedKept": "completed",
@@ -215,7 +217,9 @@
     "removeDoneBody": "\"{title}\" is done. Saving will delete its completion and evidence.",
     "removeDoneYes": "Yes, remove it",
     "startLabel": "How to start",
-    "keep": "Keep it"
+    "keep": "Keep it",
+    "errorPhaseEmpty": "Each phase needs at least one milestone.",
+    "pasteHint": "One item per line. # names the trail, > adds the goal, ## starts a phase, - [x] marks a milestone as done. Add #tag and {'@'}YYYY-MM-DD after the title. An optional line like emoji: 🦀 | color: coral | visibility: public sets the look."
   },
   "explore": {
     "title": "Explore trails",
@@ -232,11 +236,12 @@
     "copying": "Copying…",
     "empty": "Nothing here yet. Try another search.",
     "yours": "Yours",
-    "filtersLabel": "Order and filter"
+    "filtersLabel": "Order and filter",
+    "emptyFriends": "None of your friends has shared a trail yet."
   },
   "friends": {
     "title": "Friends",
-    "feed": "What your friends are up to",
+    "feed": "Recent activity",
     "feedEmpty": "Nothing yet. Add friends to see their progress.",
     "feedMore": "Show more",
     "cheer": "Cheer",
@@ -254,7 +259,7 @@
     "decline": "Decline",
     "pending": "Waiting for {name}",
     "list": "Your friends",
-    "listEmpty": "No friends yet.",
+    "listEmpty": "No friends yet. Search by name or {'@'}handle above to add one.",
     "find": "Find people",
     "findPlaceholder": "Search by {'@'}handle or name",
     "add": "Add friend",
@@ -263,7 +268,8 @@
     "noResults": "Nobody found.",
     "searchLabel": "Find people",
     "removeTitle": "Remove {name} from your friends?",
-    "removeYes": "Yes, remove"
+    "removeYes": "Yes, remove",
+    "cancelRequest": "Cancel request"
   },
   "profile": {
     "trailsActive": "{count} active trail | {count} active trails",
@@ -318,5 +324,12 @@
     "retry": "Try again",
     "close": "Close",
     "error": "Something went wrong."
+  },
+  "error": {
+    "notFoundTitle": "This page doesn't exist",
+    "genericTitle": "Something went wrong",
+    "body": "The link may be old or mistyped.",
+    "back": "Back to my trails",
+    "home": "Go to the home page"
   }
 }
