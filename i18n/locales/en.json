@@ -237,6 +237,7 @@
     "title": "Friends",
     "feed": "What your friends are up to",
     "feedEmpty": "Nothing yet. Add friends to see their progress.",
+    "feedMore": "Show more",
     "cheer": "Cheer",
     "cheered": "Cheered",
     "cheerCount": "{count} cheer | {count} cheers",

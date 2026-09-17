@@ -7,7 +7,10 @@
         <UiState :pending="feed === undefined && !feedError" :error="feedError" @retry="refreshFeed">
           <p v-if="!feed?.length" class="text-muted">{{ $t('friends.feedEmpty') }}</p>
           <div v-else class="flex flex-col gap-4" data-testid="feed">
-            <FriendsFeedItem v-for="item in feed" :key="item.id" :item="item" :me-id="me?.id" @kudos="toggleKudos" />
+            <FriendsFeedItem v-for="item in visibleFeed" :key="item.id" :item="item" :me-id="me?.id" @kudos="toggleKudos" />
+            <UiBtn v-if="feed.length > shown" variant="soft" size="sm" class="self-start" data-testid="feed-more" @click="shown += PAGE">
+              {{ $t('friends.feedMore') }}
+            </UiBtn>
           </div>
         </UiState>
       </section>
@@ -78,6 +81,9 @@ const { data: feed, error: feedError, refresh: refreshFeed } = useAsyncData('fee
   await loadMe()
   return repo.feed()
 }, { server: false, deep: true })
+const PAGE = 15
+const shown = ref(PAGE)
+const visibleFeed = computed(() => (feed.value ?? []).slice(0, shown.value))
 const { data: lists, refresh: refreshLists } = useAsyncData('friend-lists', () => repo.friends(), { server: false })
 
 const query = ref('')

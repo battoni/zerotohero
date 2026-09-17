@@ -97,6 +97,11 @@ test('copy a public template and cheer a friend', async ({ page }) => {
   await cheer.click()
   await expect(page.getByTestId(testId!)).toHaveAttribute('aria-pressed', 'true')
 
+  const items = page.getByTestId('feed').locator(':scope > [data-testid^="feed-"]:not([data-testid="feed-more"])')
+  await expect(items).toHaveCount(15)
+  await page.getByTestId('feed-more').click()
+  await expect(items).toHaveCount(30)
+
   await page.getByTestId(/^accept-/).first().click()
   await expect(page.getByTestId('friend-requests')).toHaveCount(0)
   await expect(page.getByTestId('friends-list')).toContainText('Bruno')
