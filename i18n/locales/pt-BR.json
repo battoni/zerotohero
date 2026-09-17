@@ -179,6 +179,7 @@
       "invalid_color": "Linha {line}: \"{value}\" não é uma cor conhecida.",
       "invalid_visibility": "Linha {line}: \"{value}\" não é uma opção de visibilidade.",
       "invalid_date": "Linha {line}: \"{value}\" não é uma data válida (use AAAA-MM-DD).",
+      "future_date": "Linha {line}: {value} está no futuro. Itens concluídos precisam de uma data passada.",
       "too_long": "Linha {line}: o texto foi encurtado.",
       "too_many_phases": "Linha {line}: cabem só 20 fases; o resto ficou de fora.",
       "too_many_milestones": "Linha {line}: cabem só 200 marcos; o resto ficou de fora."
@@ -186,6 +187,7 @@
     "templatePick": "Escolha um modelo",
     "templateEmpty": "Nenhum modelo público encontrado.",
     "templateUse": "Usar",
+    "templateMissing": "Esse modelo não está mais disponível. Escolha outro ou comece do zero.",
     "phases": "Fases e marcos",
     "phaseTitle": "Nome da fase",
     "defaultPhase": "Geral",

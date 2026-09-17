@@ -179,6 +179,7 @@
       "invalid_color": "Line {line}: \"{value}\" is not a color we know.",
       "invalid_visibility": "Line {line}: \"{value}\" is not a visibility option.",
       "invalid_date": "Line {line}: \"{value}\" is not a valid date (use YYYY-MM-DD).",
+      "future_date": "Line {line}: {value} is in the future. Completed items need a past date.",
       "too_long": "Line {line}: the text was shortened.",
       "too_many_phases": "Line {line}: only 20 phases fit; the rest was skipped.",
       "too_many_milestones": "Line {line}: only 200 milestones fit; the rest was skipped."
@@ -186,6 +187,7 @@
     "templatePick": "Pick a template",
     "templateEmpty": "No public templates match.",
     "templateUse": "Use",
+    "templateMissing": "That template isn't available anymore. Pick another one or start blank.",
     "phases": "Phases and milestones",
     "phaseTitle": "Phase name",
     "defaultPhase": "General",

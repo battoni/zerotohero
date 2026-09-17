@@ -81,6 +81,26 @@ describe('trails', () => {
     expect(feed.filter(f => f.track.id === id).map(f => f.type).sort()).toEqual(['milestone_completed', 'track_started'])
   })
 
+  it('keeps a single, current track_completed (third review, finding 2)', async () => {
+    const doneAt = '2026-09-10T10:00:00.000Z'
+    const done = { ...input, phases: [{ title: 'P', milestones: [{ title: 'a', tag: null, dueDate: null, completedAt: doneAt }, { title: 'b', tag: null, dueDate: null, completedAt: doneAt }] }] }
+    const id = await repo.createTrack(done)
+    const completedEvents = async () => (await repo.feed()).filter(f => f.track.id === id && f.type === 'track_completed')
+    expect(await completedEvents()).toHaveLength(1)
+
+    const t = (await repo.getTrack(id))!
+    const kept = t.phases[0]!.milestones.map(m => ({ id: m.id, title: m.title, tag: null, dueDate: null }))
+    await repo.updateTrack(id, { ...done, phases: [{ id: t.phases[0]!.id, title: 'P', milestones: [...kept, { title: 'c', tag: null, dueDate: null }] }] })
+    expect(await completedEvents()).toHaveLength(0)
+    await repo.updateTrack(id, { ...done, phases: [{ id: t.phases[0]!.id, title: 'P', milestones: kept }] })
+    expect(await completedEvents()).toHaveLength(1)
+  })
+
+  it('rejects completion dates in the future (third review, finding 5)', async () => {
+    const future = { ...input, phases: [{ title: 'P', milestones: [{ title: 'a', tag: null, dueDate: null, completedAt: '2026-12-01T00:00:00.000Z' }] }] }
+    await expect(repo.createTrack(future)).rejects.toMatchObject({ code: 'invalid', message: 'completed_at' })
+  })
+
   it('cannot complete someone else\'s milestone', async () => {
     const ana = (await repo.explore({ search: 'technical' }))[0]!
     const detail = (await repo.getTrack(ana.id))!

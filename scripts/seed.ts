@@ -42,7 +42,7 @@ interface SeedTrack { key: string, ownerHandle: string | null, track: ParsedTrac
 function readTrails(dir: string, personal: boolean): SeedTrack[] {
   if (!existsSync(dir)) return []
   return readdirSync(dir).filter(f => f.endsWith('.md')).sort().map((file) => {
-    const { track, errors } = parseTrackList(readFileSync(join(dir, file), 'utf8'))
+    const { track, errors } = parseTrackList(readFileSync(join(dir, file), 'utf8'), { now: personal ? new Date() : null })
     if (errors.length) console.warn(`  ! ${file}:`, errors)
     return {
       key: `${personal ? 'personal' : 'demo'}/${file}`,

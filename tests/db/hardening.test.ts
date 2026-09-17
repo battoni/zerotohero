@@ -157,3 +157,53 @@ describe('trails created already done (finding 8)', () => {
     expect(await count(partly)).toBe(0)
   })
 })
+
+describe('track_completed stays consistent (third review, finding 2)', () => {
+  const count = async (id: string, type = 'track_completed') =>
+    (await rows(db, 'select id from public.activities where track_id = $1 and type = $2', [id, type])).length
+  const create = (milestones: object[]) => asUser(db, attacker, async (tx) => {
+    const [r] = await rows<{ create_track: string }>(tx, 'select public.create_track($1)', [JSON.stringify({ title: 'Sync', phases: [{ title: 'P', milestones }] })])
+    return r!.create_track
+  })
+  const msOf = (id: string) => rows<{ id: string, title: string, completed_at: string | null }>(db, 'select id, title, completed_at from public.milestones where track_id = $1 order by position', [id])
+
+  it('adding an open milestone to a done trail withdraws the completion; removing it restores one', async () => {
+    const id = await create([{ title: 'a', completed_at: '2026-09-01T10:00:00Z' }])
+    expect(await count(id)).toBe(1)
+    const [a] = await msOf(id)
+    const phase = (await rows<{ id: string }>(db, 'select id from public.phases where track_id = $1', [id]))[0]!.id
+    const withOpen = { title: 'Sync', phases: [{ id: phase, title: 'P', milestones: [{ id: a!.id, title: 'a', completed_at: a!.completed_at }, { title: 'b' }] }] }
+    await asUser(db, attacker, tx => tx.query('select public.update_track($1, $2)', [id, JSON.stringify(withOpen)]))
+    expect(await count(id)).toBe(0)
+    const onlyDone = { title: 'Sync', phases: [{ id: phase, title: 'P', milestones: [{ id: a!.id, title: 'a', completed_at: a!.completed_at }] }] }
+    await asUser(db, attacker, tx => tx.query('select public.update_track($1, $2)', [id, JSON.stringify(onlyDone)]))
+    expect(await count(id)).toBe(1)
+  })
+
+  it('completing the last milestone twice over never duplicates the event', async () => {
+    const id = await create([{ title: 'a' }])
+    const [a] = await msOf(id)
+    await asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, null)', [a!.id]))
+    await asUser(db, attacker, tx => tx.query('update public.milestones set completed_at = null where id = $1', [a!.id]))
+    await asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, null)', [a!.id]))
+    expect(await count(id)).toBe(1)
+    await asUser(db, attacker, tx => tx.query('update public.milestones set completed_at = null where id = $1', [a!.id]))
+    expect(await count(id)).toBe(0)
+  })
+
+  it('deleting a trail still works (cascade skips the sync)', async () => {
+    const id = await create([{ title: 'a', completed_at: '2026-09-01T10:00:00Z' }])
+    await asUser(db, attacker, tx => tx.query('delete from public.tracks where id = $1', [id]))
+    expect(await rows(db, 'select id from public.tracks where id = $1', [id])).toHaveLength(0)
+  })
+})
+
+describe('unfollow (third review, finding 6)', () => {
+  it('removes the follow event from the feed', async () => {
+    await asUser(db, stranger, tx => tx.query('insert into public.track_follows (user_id, track_id) values ($1, $2)', [stranger, victimPublic]))
+    const events = () => rows(db, `select id from public.activities where actor_id = $1 and type = 'track_followed'`, [stranger])
+    expect(await events()).toHaveLength(1)
+    await asUser(db, stranger, tx => tx.query('delete from public.track_follows where user_id = $1 and track_id = $2', [stranger, victimPublic]))
+    expect(await events()).toHaveLength(0)
+  })
+})

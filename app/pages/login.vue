@@ -68,11 +68,13 @@ async function oauth(provider: 'google' | 'github') {
 
 async function password() {
   error.value = ''
-  const { error: e } = await supabase.auth.signInWithPassword({ email: email.value, password: pass.value })
+  const { data, error: e } = await supabase.auth.signInWithPassword({ email: email.value, password: pass.value })
   if (e) {
     error.value = e.message
     return
   }
+  // Don't wait for onAuthStateChange: the auth middleware runs on the very next navigation.
+  useSupabaseSession().value = data.session
   await navigateTo(localePath('/tracks'))
 }
 </script>

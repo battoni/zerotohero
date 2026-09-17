@@ -77,7 +77,7 @@ export function buildDemoState(files: Record<string, string>, now: Date): DemoSt
     .map(([path, text]) => {
       const file = path.split('/').pop() ?? path
       const handle = file.split('.')[0]!
-      return { handle, slug: file.replace(/\.md$/, ''), track: parseTrackList(text).track }
+      return { handle, slug: file.replace(/\.md$/, ''), track: parseTrackList(text, { now: null }).track }
     })
 
   const allDates = parsed.flatMap(p => p.track.phases.flatMap(ph => ph.milestones.map(m => m.date).filter((d): d is string => !!d)))
@@ -232,9 +232,19 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       state.activities.push({ id: newId('a'), type: 'track_started', actorId: t.ownerId, trackId: t.id, milestoneId: null, createdAt: m.completedAt! })
     }
     state.activities.push({ id: newId('a'), type: 'milestone_completed', actorId: t.ownerId, trackId: t.id, milestoneId: m.id, createdAt: m.completedAt! })
+  }
+
+  // Mirrors sync_track_completed: at most one track_completed, only while every milestone is done.
+  const syncCompleted = (t: StoredTrack) => {
     const all = milestonesOf(t)
-    if (all.every(x => x.completedAt)) {
-      state.activities.push({ id: newId('a'), type: 'track_completed', actorId: t.ownerId, trackId: t.id, milestoneId: null, createdAt: m.completedAt! })
+    const has = state.activities.some(a => a.trackId === t.id && a.type === 'track_completed')
+    const done = all.length > 0 && all.every(x => x.completedAt)
+    if (done && !has) {
+      const last = all.map(x => x.completedAt!).sort().at(-1)!
+      state.activities.push({ id: newId('a'), type: 'track_completed', actorId: t.ownerId, trackId: t.id, milestoneId: null, createdAt: last })
+    }
+    else if (!done && has) {
+      dropActivities(a => a.trackId === t.id && a.type === 'track_completed')
     }
   }
 
@@ -245,11 +255,15 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
   }
 
   const validate = (input: TrackInput) => {
+    const latest = now().getTime() + DAY
     if (!input.title.trim() || [...input.title].length > 80) throw new RepoError('invalid', 'title')
     if (!input.phases.length) throw new RepoError('invalid', 'phases')
     for (const p of input.phases) {
       if (!p.title.trim()) throw new RepoError('invalid', 'phase_title')
-      for (const m of p.milestones) if (!m.title.trim()) throw new RepoError('invalid', 'milestone_title')
+      for (const m of p.milestones) {
+        if (!m.title.trim()) throw new RepoError('invalid', 'milestone_title')
+        if (m.completedAt && new Date(m.completedAt).getTime() > latest) throw new RepoError('invalid', 'completed_at')
+      }
     }
   }
 
@@ -344,6 +358,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       }
       state.tracks.push(track)
       for (const m of milestonesOf(track).filter(x => x.completedAt)) recordCompletion(track, m)
+      syncCompleted(track)
       persist()
       return id
     },
@@ -389,6 +404,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       const removed = [...existing.keys()].filter(k => !kept.has(k))
       dropActivities(a => a.milestoneId !== null && removed.includes(a.milestoneId))
       state.evidences = state.evidences.filter(e => !removed.includes(e.milestoneId))
+      syncCompleted(t)
       persist()
     },
 
@@ -424,6 +440,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
         })
       }
       recordCompletion(track, milestone)
+      syncCompleted(track)
       persist()
     },
 
@@ -433,8 +450,8 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       milestone.completedAt = null
       milestone.timeSpentMinutes = null
       state.evidences = state.evidences.filter(e => e.milestoneId !== milestoneId)
-      dropActivities(a => (a.type === 'milestone_completed' && a.milestoneId === milestoneId)
-        || (a.type === 'track_completed' && a.trackId === track.id))
+      dropActivities(a => a.type === 'milestone_completed' && a.milestoneId === milestoneId)
+      syncCompleted(track)
       persist()
     },
 

@@ -46,6 +46,7 @@ export type ParseErrorCode =
   | 'invalid_color'
   | 'invalid_visibility'
   | 'invalid_date'
+  | 'future_date'
   | 'too_long'
   | 'too_many_phases'
   | 'too_many_milestones'
@@ -63,8 +64,9 @@ export interface ParseResult {
 }
 
 type MetaKey = 'emoji' | 'color' | 'due' | 'visibility'
-const META_LINE = /^\s*(emoji|color|due|visibility)\s*:/i
-const TAG = /(^|\s)#([\p{L}\p{N}_-]+)/u
+const META_LINE = /^\s*(emoji|color|due|visibility)\s*:/
+// A tag starts with a letter, so "#42" in "Fix issue #42" stays in the title.
+const TAG = /(^|\s)#(\p{L}[\p{L}\p{N}_-]*)/u
 const DATE = /(^|\s)@(\d{4}-\d{2}-\d{2})(?=\s|$)/
 const ITEM = /^\s*(?:[-*+]|\d+[.)])\s+(?:\[([ xX])\]\s+)?(.*)$/
 
@@ -111,7 +113,7 @@ function parseMeta(line: string, lineNo: number, track: ParsedTrack, errors: Par
   for (const part of line.split('|')) {
     const idx = part.indexOf(':')
     if (idx === -1) continue
-    const key = part.slice(0, idx).trim().toLowerCase()
+    const key = part.slice(0, idx).trim()
     const value = part.slice(idx + 1).trim()
     if (!value) continue
     switch (key as MetaKey) {
@@ -136,8 +138,16 @@ function parseMeta(line: string, lineNo: number, track: ParsedTrack, errors: Par
   }
 }
 
-export function parseTrackList(input: string): ParseResult {
+export interface ParseOptions {
+  /** Reference for "done in the future" checks; `null` skips them (demo seeds are re-dated). */
+  now?: Date | null
+}
+
+export function parseTrackList(input: string, options: ParseOptions = {}): ParseResult {
   const errors: ParseError[] = []
+  const now = options.now === undefined ? new Date() : options.now
+  // One day of slack for time zones ahead of UTC.
+  const latestDone = now ? new Date(now.getTime() + 86_400_000).toISOString().slice(0, 10) : null
   const track: ParsedTrack = { title: null, goal: null, emoji: null, color: null, due: null, visibility: null, phases: [] }
   const lines = input.replace(/\r\n?/g, '\n').split('\n')
   const structured = isStructured(lines)
@@ -165,6 +175,10 @@ export function parseTrackList(input: string): ParseResult {
     }
     const m = parseMilestone(raw, done, lineNo, errors)
     if (!m) return
+    if (m.done && m.date && latestDone && m.date > latestDone) {
+      errors.push({ line: lineNo, code: 'future_date', value: m.date })
+      m.date = null
+    }
     phaseFor().milestones.push(m)
     milestoneCount += 1
   }
@@ -179,8 +193,9 @@ export function parseTrackList(input: string): ParseResult {
       return
     }
 
-    if (/^#\s/.test(line) && !/^##/.test(line)) {
-      if (track.title === null) track.title = clip(line.slice(2).trim(), LIMITS.trackTitle, lineNo, errors)
+    if (/^#(\s|$)/.test(line)) {
+      const title = line.slice(1).trim()
+      if (track.title === null && title) track.title = clip(title, LIMITS.trackTitle, lineNo, errors)
       return
     }
     if (/^##(\s|$)/.test(line)) {

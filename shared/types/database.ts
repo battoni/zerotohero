@@ -8,11 +8,19 @@ type EvidenceKind = 'link' | 'note' | 'file' | 'certificate'
 type FriendStatus = 'pending' | 'accepted'
 type ActivityType = 'milestone_completed' | 'track_completed' | 'track_started' | 'track_followed'
 
-type Table<Row, Required extends keyof Row> = {
+type Rel<Name extends string, Column extends string, Referenced extends string> = {
+  foreignKeyName: Name
+  columns: [Column]
+  isOneToOne: false
+  referencedRelation: Referenced
+  referencedColumns: ['id']
+}
+
+type Table<Row, Required extends keyof Row, Relationships extends unknown[] = []> = {
   Row: Row
   Insert: Pick<Row, Required> & Partial<Omit<Row, Required>>
   Update: Partial<Row>
-  Relationships: []
+  Relationships: Relationships
 }
 
 export interface Database {
@@ -23,7 +31,8 @@ export interface Database {
         handle: string
         display_name: string | null
         avatar_url: string | null
-        locale: 'en' | 'pt-BR'
+        // text column with a check constraint; toProfile narrows it.
+        locale: string
         onboarded_at: string | null
         created_at: string
       }, 'id' | 'handle'>
@@ -71,7 +80,7 @@ export interface Database {
         learned: string | null
         storage_path: string | null
         created_at: string
-      }, 'milestone_id' | 'kind'>
+      }, 'milestone_id' | 'kind', [Rel<'evidences_milestone_id_fkey', 'milestone_id', 'milestones'>]>
       friendships: Table<{
         requester_id: string
         addressee_id: string

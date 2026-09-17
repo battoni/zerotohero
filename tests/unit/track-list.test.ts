@@ -109,6 +109,33 @@ describe('parseTrackList', () => {
   })
 })
 
+describe('parseTrackList — third review', () => {
+  const now = new Date('2026-09-17T12:00:00Z')
+  it('keeps numeric hashtags in the title', () => {
+    const { track } = parseTrackList('- Fix issue #42 #bug', { now })
+    expect(track.phases[0]!.milestones[0]).toMatchObject({ title: 'Fix issue #42', tag: 'bug' })
+  })
+  it('ignores a bare "#" line', () => {
+    const { track } = parseTrackList('# \n# Real title\n- a', { now })
+    expect(track.title).toBe('Real title')
+    expect(track.phases[0]!.milestones.map(m => m.title)).toEqual(['a'])
+  })
+  it('treats capitalised meta-like lines as milestones', () => {
+    const { track, errors } = parseTrackList('# T\nDue: finish reading\n- b', { now })
+    expect(track.due).toBeNull()
+    expect(errors).toEqual([])
+    expect(track.phases[0]!.milestones.map(m => m.title)).toEqual(['Due: finish reading', 'b'])
+  })
+  it('flags completion dates in the future and drops them', () => {
+    const { track, errors } = parseTrackList('- [x] done @2026-09-18\n- [x] later @2026-10-01\n- [ ] due @2026-12-01', { now })
+    expect(errors).toEqual([{ line: 2, code: 'future_date', value: '2026-10-01' }])
+    expect(track.phases[0]!.milestones.map(m => m.date)).toEqual(['2026-09-18', null, '2026-12-01'])
+  })
+  it('can skip the future check', () => {
+    expect(parseTrackList('- [x] later @2030-01-01', { now: null }).errors).toEqual([])
+  })
+})
+
 describe('toTrackList', () => {
   it('round-trips a parsed trail', () => {
     const { track } = parseTrackList(FULL)

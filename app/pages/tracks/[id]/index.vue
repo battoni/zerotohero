@@ -180,6 +180,8 @@ async function applyToggle(m: Milestone) {
   if (!target) return
   actionError.value = false
   const wasDone = !!target.completedAt
+  const prev = target.completedAt
+  busy.value = true
   // Optimistic update, rolled back on failure.
   target.completedAt = wasDone ? null : new Date().toISOString()
   recount(tr)
@@ -190,9 +192,12 @@ async function applyToggle(m: Milestone) {
     await refresh()
   }
   catch {
-    target.completedAt = wasDone ? m.completedAt : null
+    target.completedAt = prev
     recount(tr)
     actionError.value = true
+  }
+  finally {
+    busy.value = false
   }
 }
 

@@ -22,7 +22,14 @@ async function create(input: TrackInput, done: (ok: boolean) => void, sourceId: 
     let id: string
     if (sourceId) {
       id = await repo.copyTrack(sourceId)
-      await repo.updateTrack(id, input)
+      try {
+        await repo.updateTrack(id, input)
+      }
+      catch (e) {
+        // Don't leave a half-made copy behind.
+        await repo.deleteTrack(id).catch(() => {})
+        throw e
+      }
     }
     else {
       id = await repo.createTrack(input)

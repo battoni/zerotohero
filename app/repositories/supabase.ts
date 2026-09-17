@@ -9,6 +9,8 @@ import type {
 } from '~~/shared/types/domain'
 import { RepoError, type DataRepository } from './types'
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 type Client = SupabaseClient<Database>
 type Tables = Database['public']['Tables']
 type ProfileRow = Tables['profiles']['Row']
@@ -33,7 +35,7 @@ const toProfile = (r: ProfileRow): Profile => ({
   handle: r.handle,
   displayName: r.display_name,
   avatarUrl: r.avatar_url,
-  locale: r.locale,
+  locale: r.locale === 'pt-BR' ? 'pt-BR' : 'en',
   onboarded: r.onboarded_at !== null,
 })
 
@@ -180,6 +182,8 @@ export function createSupabaseRepository(client: Client): DataRepository {
     },
 
     async getTrack(id) {
+      // Ids come from the URL (?from=, /tracks/:id); a malformed one is just "not found".
+      if (!UUID.test(id)) return null
       const me = await uid()
       const { data: row, error } = await client.from('tracks').select('*').eq('id', id).maybeSingle()
       fail(error)
@@ -205,8 +209,9 @@ export function createSupabaseRepository(client: Client): DataRepository {
 
       let recentEvidence: TrackDetail['recentEvidence'] = []
       if (milestones.length) {
-        const { data: ev, error: evError } = await client.from('evidences').select('*')
-          .in('milestone_id', milestones.map(m => m.id)).order('created_at', { ascending: false })
+        // Filter through the milestone join: a long trail would overflow an id list in the URL.
+        const { data: ev, error: evError } = await client.from('evidences').select('*, milestones!inner(track_id)')
+          .eq('milestones.track_id', id).order('created_at', { ascending: false })
         fail(evError)
         for (const e of ev ?? []) {
           const m = milestones.find(x => x.id === e.milestone_id)
@@ -461,9 +466,9 @@ export function createSupabaseRepository(client: Client): DataRepository {
           .in('track_id', ids).not('completed_at', 'is', null)
         fail(mError)
         completedAt = (ms ?? []).map(m => m.completed_at!).filter(Boolean)
-        const msIds = (ms ?? []).map(m => m.id)
-        if (msIds.length) {
-          const { data: ev, error: eError } = await client.from('evidences').select('kind').in('milestone_id', msIds)
+        if (completedAt.length) {
+          const { data: ev, error: eError } = await client.from('evidences').select('kind, milestones!inner(track_id, completed_at)')
+            .in('milestones.track_id', ids).not('milestones.completed_at', 'is', null)
           fail(eError)
           evidenceCount = ev?.length ?? 0
           certificateCount = (ev ?? []).filter(e => e.kind === 'certificate').length

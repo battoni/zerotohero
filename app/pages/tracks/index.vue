@@ -58,14 +58,15 @@ const greetName = computed(() => (mounted.value ? me.value?.displayName || me.va
 const today = computed(() => formatDate(new Date(), locale.value, { weekday: 'long', day: 'numeric', month: 'long' }))
 
 const { data, error, refresh } = useAsyncData('home', async () => {
-  const [tracks, feed] = await Promise.all([repo.listMyTracks(), repo.feed(), loadMe()])
-  return { tracks, feed }
+  const [tracks, feed, profile] = await Promise.all([repo.listMyTracks(), repo.feed(), loadMe()])
+  // The feed is capped, so this week's count comes from my own completions.
+  const mine = profile ? await repo.profile(profile.handle) : null
+  return { tracks, feed, completedAt: mine?.completedAt ?? [] }
 }, { server: false })
 
 const tracks = computed(() => data.value?.tracks ?? [])
 const weekCount = computed(() => {
-  const mine = (data.value?.feed ?? []).filter(f => f.actor.id === me.value?.id && f.type === 'milestone_completed')
-  return completedThisWeek(mine.map(f => f.createdAt), new Date())
+  return completedThisWeek(data.value?.completedAt ?? [], new Date())
 })
 const friendsMoving = computed(() => {
   const since = Date.now() - 7 * 86_400_000

@@ -170,11 +170,11 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 
 **Regras**
 - **Título e objetivo:** `# ` é o título; `> ` é o objetivo (opcional).
-- **Metadados:** a linha de metadados é opcional, com chaves `emoji`, `color`, `due` e `visibility`.
+- **Metadados:** a linha de metadados é opcional, com chaves `emoji`, `color`, `due` e `visibility` (em minúsculas).
 - **Fases:** `## ` abre uma fase. Um marco antes da primeira fase cai na fase padrão.
 - **Marcos:** `- `, `* ` ou `- [ ] ` abrem um marco; `- [x] ` já nasce concluído.
-- **Tag e data:** `#tag` é a primeira hashtag, e sai do título. `@AAAA-MM-DD` é a data do marco (`due_date`).
-  - Em marco já concluído, essa data vira `completed_at`.
+- **Tag e data:** `#tag` é a primeira hashtag que começa com letra, e sai do título (`#42` fica no título). `@AAAA-MM-DD` é a data do marco (`due_date`).
+  - Em marco já concluído, essa data vira `completed_at`. Data de conclusão no futuro (além de amanhã) gera `future_date` e é descartada.
 - **Colar texto simples:** sem nenhum `#` de título, cada linha não vazia vira um marco.
 - **Limites:** até 20 fases e 200 marcos.
 - **Erros:** voltam como uma lista `{ line, code }`, com códigos i18n.
@@ -218,7 +218,7 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 ## 6. Seed
 
 - **Comando:** `npm run seed`, usando `SUPABASE_SECRET_KEY` apenas no ambiente local. `npm run seed -- --dry-run` só lê os arquivos e mostra o plano.
-  - É **idempotente**: usa ids determinísticos (uuid v5 a partir de `handle` + título).
+  - É **idempotente**: usa ids determinísticos (uuid v5 a partir do caminho do arquivo da trilha, como `demo/01-x.md`, e da posição de fases e marcos). Renomear o arquivo cria outra trilha; `--reset` limpa.
 - **Usuários de demonstração:** Ana, Rafa, Lu (handle `luiza`), Bruno, Carla e um usuário `e2e`, todos com e-mail `@demo.zerotohero.local` e a senha `SEED_DEMO_PASSWORD`.
   - A persona "Alex" existe só no modo demo do navegador. Recebem trilhas públicas (`seed/demo/*.md`), amizades aceitas com o dono, conclusões espalhadas nas últimas 20 semanas e kudos.
 - **Dono:** `SEED_OWNER_EMAIL` aponta para o usuário real, que precisa ter feito login uma vez. As trilhas dele vêm de `seed/personal/*.md`, pasta que **fica fora do git**.

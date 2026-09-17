@@ -335,8 +335,13 @@ watch(start, (s) => {
 })
 
 async function applyTemplate(id: string) {
-  const tpl = await repo.getTrack(id)
-  if (!tpl) return
+  errorKey.value = ''
+  const tpl = await repo.getTrack(id).catch(() => null)
+  if (!tpl) {
+    errorKey.value = 'editor.templateMissing'
+    start.value = 'template'
+    return
+  }
   sourceId.value = id
   form.title = tpl.title
   goal.value = tpl.goal ?? ''
