@@ -189,16 +189,17 @@ async function applyToggle(m: Milestone) {
   try {
     if (wasDone) await repo.reopenMilestone(m.id)
     else await repo.completeMilestone(m.id)
-    await refresh()
   }
   catch {
     target.completedAt = prev
     recount(tr)
     actionError.value = true
-  }
-  finally {
     busy.value = false
+    return
   }
+  busy.value = false
+  // The write went through; a failed reload is not a failed toggle.
+  await refresh()
 }
 
 function openSheet(m: Milestone) {

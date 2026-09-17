@@ -21,7 +21,7 @@ type ProgressRow = Database['public']['Views']['track_progress']['Row']
 
 interface PgError { code?: string, message: string }
 
-function fail(error: PgError | null): void {
+export function fail(error: PgError | null): void {
   if (!error) return
   if (error.code === '23505') throw new RepoError('handle_taken', error.message)
   // Check violations and malformed values (bad uuid, date, enum) are input problems.
@@ -100,7 +100,8 @@ const toPayload = (input: TrackInput) => ({
 })
 
 /** PostgREST `or()` filters break on commas and parentheses; keep the search literal. */
-const safeTerm = (q: string) => q.replace(/[,()*%\\]/g, ' ').trim()
+// PostgREST `or()` syntax characters become spaces; `_` is an ilike wildcard, so escape it.
+const safeTerm = (q: string) => q.replace(/[,()*%\\]/g, ' ').trim().replace(/_/g, '\\_')
 
 export function createSupabaseRepository(client: Client): DataRepository {
   let cachedUid: string | null = null
@@ -394,8 +395,11 @@ export function createSupabaseRepository(client: Client): DataRepository {
         if (!data?.length) throw new RepoError('not_found')
       }
       else {
-        const { error } = await client.from('friendships').delete().eq('requester_id', userId).eq('addressee_id', me)
+        // Only a pending request: a stale "decline" must not end a friendship accepted meanwhile.
+        const { data, error } = await client.from('friendships').delete()
+          .eq('requester_id', userId).eq('addressee_id', me).eq('status', 'pending').select('requester_id')
         fail(error)
+        if (!data?.length) throw new RepoError('not_found')
       }
     },
 
@@ -484,6 +488,8 @@ export function createSupabaseRepository(client: Client): DataRepository {
       if (ids.length) {
         const { data: ms, error: mError } = await client.from('milestones').select('id,completed_at')
           .in('track_id', ids).not('completed_at', 'is', null)
+          // Newest first, so a cap (PostgREST max-rows) drops old history, never this week.
+          .order('completed_at', { ascending: false }).limit(1000)
         fail(mError)
         completedAt = (ms ?? []).map(m => m.completed_at!).filter(Boolean)
         if (completedAt.length) {

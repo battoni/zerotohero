@@ -46,7 +46,7 @@
         </label>
         <label class="flex flex-col gap-1.5 text-[13px] font-bold text-muted">
           {{ $t('complete.time') }}
-          <input id="complete-time" v-model.number="minutes" type="number" min="0" step="5" class="field num" data-testid="complete-time">
+          <input id="complete-time" v-model.number="minutes" type="number" min="0" step="5" max="100000" class="field num" data-testid="complete-time">
         </label>
       </div>
 
@@ -85,15 +85,16 @@ const { t } = useI18n()
 type Kind = EvidenceKind | 'none'
 const kinds: Kind[] = ['link', 'note', 'file', 'certificate', 'none']
 // Local calendar date (toISOString would give tomorrow in the evening west of UTC).
-const now = new Date()
-const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+const localIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+// Recomputed on every open: a tab left open past midnight must not stay on yesterday.
+const todayIso = ref(localIso(new Date()))
 
 const kind = ref<Kind>('link')
 const url = ref('')
 const note = ref('')
 const learned = ref('')
 const file = ref<File | null>(null)
-const date = ref(todayIso)
+const date = ref(todayIso.value)
 const minutes = ref<number | ''>('')
 const errorKey = ref('')
 const saving = ref(false)
@@ -103,10 +104,11 @@ const celebrateHeading = computed(() => (remaining.value === 0 ? t('track.allDon
 
 watch(() => props.open, (open) => {
   if (!open) return
+  todayIso.value = localIso(new Date())
   kind.value = 'link'
   url.value = note.value = learned.value = ''
   file.value = null
-  date.value = todayIso
+  date.value = todayIso.value
   minutes.value = ''
   errorKey.value = ''
   celebrating.value = 0
@@ -117,6 +119,7 @@ function onFile(e: Event) {
 }
 
 function validate(): string {
+  if (minutes.value !== '' && !(Number.isInteger(minutes.value) && minutes.value >= 0 && minutes.value <= 100_000)) return 'complete.errorMinutes'
   if (kind.value === 'link' && !/^https?:\/\/\S+$/i.test(url.value.trim())) return 'complete.errorUrl'
   if (kind.value === 'certificate' && !file.value && !/^https?:\/\/\S+$/i.test(url.value.trim())) return 'complete.errorUrl'
   if (kind.value === 'note' && !note.value.trim()) return 'complete.errorNote'
@@ -130,7 +133,7 @@ function submit() {
   errorKey.value = validate()
   if (errorKey.value) return
   const input: CompleteInput = {
-    completedAt: date.value && date.value !== todayIso ? new Date(`${date.value}T12:00:00`).toISOString() : undefined,
+    completedAt: date.value && date.value !== todayIso.value ? new Date(`${date.value}T12:00:00`).toISOString() : undefined,
     timeSpentMinutes: minutes.value === '' ? null : Number(minutes.value),
     evidence: kind.value === 'none'
       ? null

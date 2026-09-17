@@ -132,7 +132,10 @@ function stateOf(id: string): FriendState {
   return 'none'
 }
 
+const kudosBusy = new Set<string>()
 async function toggleKudos(item: FeedItem) {
+  if (kudosBusy.has(item.id)) return
+  kudosBusy.add(item.id)
   const on = !item.kudosByMe
   item.kudosByMe = on
   item.kudosCount += on ? 1 : -1
@@ -142,6 +145,9 @@ async function toggleKudos(item: FeedItem) {
   catch {
     item.kudosByMe = !on
     item.kudosCount += on ? -1 : 1
+  }
+  finally {
+    kudosBusy.delete(item.id)
   }
 }
 

@@ -140,6 +140,7 @@
     "errorNote": "Write the note.",
     "errorFile": "Pick a PDF or image up to 10 MB.",
     "errorSave": "Could not save. Try again.",
+    "errorMinutes": "Time spent is a whole number of minutes.",
     "evidenceLabel": "Kind of evidence"
   },
   "editor": {

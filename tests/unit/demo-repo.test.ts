@@ -101,6 +101,15 @@ describe('trails', () => {
     await expect(repo.createTrack(future)).rejects.toMatchObject({ code: 'invalid', message: 'completed_at' })
   })
 
+  it('rejects invalid minutes (fifth review)', async () => {
+    const id = await repo.createTrack(input)
+    const m = (await repo.getTrack(id))!.phases[0]!.milestones[0]!
+    await expect(repo.completeMilestone(m.id, { timeSpentMinutes: -5 })).rejects.toMatchObject({ code: 'invalid' })
+    await expect(repo.completeMilestone(m.id, { timeSpentMinutes: 7.5 })).rejects.toMatchObject({ code: 'invalid' })
+    await repo.completeMilestone(m.id, { timeSpentMinutes: 0 })
+    expect((await repo.getTrack(id))!.done).toBe(1)
+  })
+
   it('cannot complete someone else\'s milestone', async () => {
     const ana = (await repo.explore({ search: 'technical' }))[0]!
     const detail = (await repo.getTrack(ana.id))!

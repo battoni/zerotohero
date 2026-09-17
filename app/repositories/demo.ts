@@ -422,6 +422,8 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
 
     async completeMilestone(milestoneId, input) {
       const { track, milestone } = ownedMilestone(milestoneId)
+      const minutes = input?.timeSpentMinutes
+      if (minutes != null && !(Number.isInteger(minutes) && minutes >= 0 && minutes <= 100_000)) throw new RepoError('invalid', 'minutes')
       if (milestone.completedAt) return
       milestone.completedAt = input?.completedAt ?? now().toISOString()
       milestone.timeSpentMinutes = input?.timeSpentMinutes ?? null
@@ -474,11 +476,12 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       const q = search?.trim().toLowerCase()
       let list = state.tracks.filter(t => t.visibility !== 'private' && canView(t))
       if (filter === 'friends') list = list.filter(t => t.ownerId !== state.meId && areFriends(t.ownerId, state.meId))
-      if (q) list = list.filter(t => [t.title, t.goal ?? '', ...milestonesOf(t).map(m => m.tag ?? '')].some(s => s.toLowerCase().includes(q)))
+      // Same rule as the Supabase query: title or goal.
+      if (q) list = list.filter(t => [t.title, t.goal ?? ''].some(s => s.toLowerCase().includes(q)))
       const out = list.map(summary)
       if (filter === 'recent') out.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       else out.sort((a, b) => b.copiesCount - a.copiesCount || a.title.localeCompare(b.title))
-      return out
+      return out.slice(0, 60)
     },
 
     async copyTrack(id) {
