@@ -10,14 +10,22 @@ as $$
 declare
   v_total integer;
   v_done integer;
+  v_last timestamptz;
 begin
   select count(*), count(completed_at) into v_total, v_done from public.milestones where track_id = p_track;
   if v_total = 0 or v_done < v_total then
     delete from public.activities where track_id = p_track and type = 'track_completed';
-  elsif not exists (select 1 from public.activities where track_id = p_track and type = 'track_completed') then
-    insert into public.activities (actor_id, type, track_id, created_at)
-    select t.owner_id, 'track_completed', t.id, (select max(completed_at) from public.milestones where track_id = t.id)
-    from public.tracks t where t.id = p_track;
+  else
+    -- Dated at the last completion. Rows are synced one by one, so an existing
+    -- event is moved forward rather than recreated (its cheers stay attached).
+    select max(completed_at) into v_last from public.milestones where track_id = p_track;
+    update public.activities set created_at = v_last
+      where track_id = p_track and type = 'track_completed';
+    if not found then
+      insert into public.activities (actor_id, type, track_id, created_at)
+      select t.owner_id, 'track_completed', t.id, v_last
+      from public.tracks t where t.id = p_track;
+    end if;
   end if;
 end;
 $$;

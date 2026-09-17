@@ -125,6 +125,7 @@ export interface Database {
       create_track: { Args: { payload: Json }, Returns: string }
       update_track: { Args: { p_id: string, payload: Json }, Returns: undefined }
       complete_milestone: { Args: { p_id: string, p_completed_at: string | null, p_minutes: number | null, p_evidence: Json | null }, Returns: boolean }
+      reopen_milestone: { Args: { p_id: string }, Returns: string[] }
       are_friends: { Args: { a: string, b: string }, Returns: boolean }
       can_view_track: { Args: { p_track_id: string }, Returns: boolean }
     }

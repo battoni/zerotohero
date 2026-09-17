@@ -154,6 +154,8 @@ describe('trails created already done (finding 8)', () => {
     })
     const count = async (id: string) => (await rows(db, `select id from public.activities where track_id = $1 and type = 'track_completed'`, [id])).length
     expect(await count(done)).toBe(1)
+    const [ev] = await rows<{ created_at: Date }>(db, `select created_at from public.activities where track_id = $1 and type = 'track_completed'`, [done])
+    expect(new Date(ev!.created_at).toISOString()).toBe('2026-09-02T10:00:00.000Z')
     expect(await count(partly)).toBe(0)
   })
 })
@@ -184,10 +186,10 @@ describe('track_completed stays consistent (third review, finding 2)', () => {
     const id = await create([{ title: 'a' }])
     const [a] = await msOf(id)
     await asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, null)', [a!.id]))
-    await asUser(db, attacker, tx => tx.query('update public.milestones set completed_at = null where id = $1', [a!.id]))
+    await asUser(db, attacker, tx => tx.query('select public.reopen_milestone($1)', [a!.id]))
     await asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, null, null)', [a!.id]))
     expect(await count(id)).toBe(1)
-    await asUser(db, attacker, tx => tx.query('update public.milestones set completed_at = null where id = $1', [a!.id]))
+    await asUser(db, attacker, tx => tx.query('select public.reopen_milestone($1)', [a!.id]))
     expect(await count(id)).toBe(0)
   })
 
@@ -205,5 +207,26 @@ describe('unfollow (third review, finding 6)', () => {
     expect(await events()).toHaveLength(1)
     await asUser(db, stranger, tx => tx.query('delete from public.track_follows where user_id = $1 and track_id = $2', [stranger, victimPublic]))
     expect(await events()).toHaveLength(0)
+  })
+})
+
+describe('reopen_milestone (fourth review, finding 3)', () => {
+  it('reopens, drops evidence and returns the file paths, atomically', async () => {
+    const [{ create_track: id }] = await asUser(db, attacker, tx => rows<{ create_track: string }>(tx, 'select public.create_track($1)', [JSON.stringify({
+      title: 'Reopen', phases: [{ title: 'P', milestones: [{ title: 'a' }] }],
+    })])) as [{ create_track: string }]
+    const m = (await rows<{ id: string }>(db, 'select id from public.milestones where track_id = $1', [id]))[0]!.id
+    const path = `${attacker}/${m}/cert.pdf`
+    await asUser(db, attacker, tx => tx.query('select public.complete_milestone($1, null, 30, $2)', [m, JSON.stringify({ kind: 'certificate', storage_path: path })]))
+    const [r] = await asUser(db, attacker, tx => rows<{ reopen_milestone: string[] }>(tx, 'select public.reopen_milestone($1)', [m]))
+    expect(r!.reopen_milestone).toEqual([path])
+    const [row] = await rows<{ completed_at: string | null, time_spent_minutes: number | null }>(db, 'select completed_at, time_spent_minutes from public.milestones where id = $1', [m])
+    expect(row).toEqual({ completed_at: null, time_spent_minutes: null })
+    expect(await rows(db, 'select id from public.evidences where milestone_id = $1', [m])).toHaveLength(0)
+  })
+
+  it('fails for someone else\'s milestone instead of doing nothing', async () => {
+    await expect(asUser(db, stranger, tx => tx.query('select public.reopen_milestone($1)', [victimMilestone])))
+      .rejects.toThrow(/not found/)
   })
 })

@@ -246,6 +246,7 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 | `NUXT_PUBLIC_SUPABASE_URL` | `.env` e Vercel | Cliente |
 | `NUXT_PUBLIC_SUPABASE_KEY` | `.env` e Vercel | Publishable key (pública por desenho) |
 | `SUPABASE_SECRET_KEY` | **só** `.env` local (seed) e, se necessário, variável de servidor na Vercel | Seed e rotinas de servidor. Nunca no bundle |
+| `NUXT_SUPABASE_SECRET_KEY` | variável de **runtime** do servidor na Vercel (não de build) | Assinar URLs de arquivos de evidência. O `nuxt.config` zera o valor de build, então a chave nunca entra no bundle |
 | `SEED_OWNER_EMAIL` | `.env` local | Dono das trilhas pessoais do seed |
 | `SEED_DEMO_PASSWORD` | `.env` local | Senha dos usuários de demonstração e do usuário de E2E |
 | `SUPABASE_PROJECT_REF` | `.env` local | `npm run db:types` |

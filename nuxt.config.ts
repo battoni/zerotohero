@@ -30,6 +30,9 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // Server keys are runtime-only (NUXT_SUPABASE_SECRET_KEY). Empty here so the module
+    // doesn't copy a key found at build time into the server bundle.
+    supabase: { secretKey: '', serviceKey: '' },
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
       devLogin: process.env.NUXT_PUBLIC_DEV_LOGIN || 'false',

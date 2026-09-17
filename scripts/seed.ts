@@ -185,15 +185,10 @@ async function request(from: string, to: string) {
   if (!existing.length) await must(db.from('friendships').insert({ requester_id: from, addressee_id: to }), 'pending request')
 }
 
-/** Seeded milestones are inserted one by one, so a fully done trail needs its track_completed here. */
-async function markCompleted(trackId: string, ownerId: string) {
-  const ms = (await must(db.from('milestones').select('completed_at').eq('track_id', trackId), 'completion check')) ?? []
-  if (!ms.length || ms.some(m => !m.completed_at)) return null
+/** The track_completed event of a fully done trail (the database keeps it in sync), for cheering. */
+async function markCompleted(trackId: string) {
   const found = (await must(db.from('activities').select('id').eq('track_id', trackId).eq('type', 'track_completed'), 'activity lookup')) ?? []
-  if (found.length) return found[0]!.id
-  const last = ms.map(m => m.completed_at!).sort().at(-1)!
-  const inserted = (await must(db.from('activities').insert({ actor_id: ownerId, type: 'track_completed', track_id: trackId, created_at: last }).select('id'), 'track_completed')) ?? []
-  return inserted[0]?.id ?? null
+  return found[0]?.id ?? null
 }
 
 async function cheer(activityId: string, userIds: string[]) {
@@ -230,7 +225,7 @@ async function main() {
       continue
     }
     const trackId = await insertTrail(t, owner)
-    const done = await markCompleted(trackId, owner)
+    const done = await markCompleted(trackId)
     if (done) completedActivities.push(done)
   }
 
@@ -250,7 +245,7 @@ async function main() {
     else {
       for (const t of personalTrails) {
         const trackId = await insertTrail(t, owner.id)
-        await markCompleted(trackId, owner.id)
+        await markCompleted(trackId)
       }
       for (const h of ['ana', 'rafa', 'luiza']) await befriend(owner.id, ids[h]!)
       await request(ids.bruno!, owner.id)

@@ -24,8 +24,10 @@ interface PgError { code?: string, message: string }
 function fail(error: PgError | null): void {
   if (!error) return
   if (error.code === '23505') throw new RepoError('handle_taken', error.message)
-  if (error.code === '23514' || error.code === '22023' || error.code === '22P02') throw new RepoError('invalid', error.message)
-  if (error.code === 'P0002' || error.code === 'PGRST116') throw new RepoError('not_found', error.message)
+  // Check violations and malformed values (bad uuid, date, enum) are input problems.
+  if (error.code === '23514' || error.code?.startsWith('22')) throw new RepoError('invalid', error.message)
+  // A reference that is gone (23503) or hidden, and PostgREST's "no rows" / unknown filter target.
+  if (error.code === 'P0002' || error.code === '23503' || error.code === 'PGRST116' || error.code?.startsWith('PGRST1')) throw new RepoError('not_found', error.message)
   if (error.code === '42501') throw new RepoError('forbidden', error.message)
   throw new RepoError('network', error.message)
 }
@@ -112,6 +114,19 @@ export function createSupabaseRepository(client: Client): DataRepository {
   client.auth.onAuthStateChange(() => {
     cachedUid = null
   })
+
+  /** Storage paths of a trail's evidence files (own trails only: storage is per user). */
+  const trackFiles = async (trackId: string): Promise<string[]> => {
+    const { data, error } = await client.from('evidences').select('storage_path, milestones!inner(track_id)')
+      .eq('milestones.track_id', trackId).not('storage_path', 'is', null)
+    fail(error)
+    return (data ?? []).map(r => r.storage_path).filter((p): p is string => !!p)
+  }
+
+  // Best effort: the rows are already gone, so a failed removal only leaves an unreachable file.
+  const removeFiles = async (paths: string[]) => {
+    if (paths.length) await client.storage.from('evidence').remove(paths).catch(() => {})
+  }
 
   const profilesByIds = async (ids: string[]): Promise<Map<string, Profile>> => {
     const unique = [...new Set(ids)]
@@ -240,13 +255,22 @@ export function createSupabaseRepository(client: Client): DataRepository {
     },
 
     async updateTrack(id, input) {
+      // Milestones dropped by the edit take their evidence rows with them (cascade); remove their files too.
+      const before = await trackFiles(id)
       const { error } = await client.rpc('update_track', { p_id: id, payload: toPayload(input) })
       fail(error)
+      if (before.length) {
+        const after = new Set(await trackFiles(id))
+        await removeFiles(before.filter(p => !after.has(p)))
+      }
     },
 
     async deleteTrack(id) {
-      const { error } = await client.from('tracks').delete().eq('id', id)
+      const files = await trackFiles(id)
+      const { data, error } = await client.from('tracks').delete().eq('id', id).select('id')
       fail(error)
+      if (!data?.length) throw new RepoError('not_found')
+      await removeFiles(files)
     },
 
     async completeMilestone(milestoneId, input?: CompleteInput) {
@@ -260,7 +284,7 @@ export function createSupabaseRepository(client: Client): DataRepository {
         const { error: upError } = await client.storage.from('evidence').upload(storagePath, ev.file, { contentType: ev.file.type })
         if (upError) throw new RepoError('network', upError.message)
       }
-      const { error } = await client.rpc('complete_milestone', {
+      const { data: completed, error } = await client.rpc('complete_milestone', {
         p_id: milestoneId,
         p_completed_at: input?.completedAt ?? null,
         p_minutes: input?.timeSpentMinutes ?? null,
@@ -268,20 +292,15 @@ export function createSupabaseRepository(client: Client): DataRepository {
           ? { kind: ev.kind, url: ev.url?.trim() || null, body: ev.body?.trim() || null, learned: ev.learned?.trim() || null, storage_path: storagePath }
           : null,
       })
-      if (error && storagePath) await client.storage.from('evidence').remove([storagePath])
+      // Failed, or already completed (double submit, another tab): the upload has no row to belong to.
+      if ((error || completed === false) && storagePath) await removeFiles([storagePath])
       fail(error)
     },
 
     async reopenMilestone(milestoneId) {
-      const { error } = await client.from('milestones')
-        .update({ completed_at: null, time_spent_minutes: null }).eq('id', milestoneId)
+      const { data: paths, error } = await client.rpc('reopen_milestone', { p_id: milestoneId })
       fail(error)
-      const { data: removed, error: evError } = await client.from('evidences').delete()
-        .eq('milestone_id', milestoneId).select('storage_path')
-      fail(evError)
-      // Best effort: the evidence row is gone either way; a leftover file is only storage.
-      const paths = (removed ?? []).map(r => r.storage_path).filter((p): p is string => !!p)
-      if (paths.length) await client.storage.from('evidence').remove(paths)
+      await removeFiles(paths ?? [])
     },
 
     async setFollowing(trackId, following) {
@@ -368,10 +387,11 @@ export function createSupabaseRepository(client: Client): DataRepository {
     async respondFriend(userId, accept) {
       const me = await uid()
       if (accept) {
-        const { error } = await client.from('friendships')
+        const { data, error } = await client.from('friendships')
           .update({ status: 'accepted', responded_at: new Date().toISOString() })
-          .eq('requester_id', userId).eq('addressee_id', me)
+          .eq('requester_id', userId).eq('addressee_id', me).eq('status', 'pending').select('requester_id')
         fail(error)
+        if (!data?.length) throw new RepoError('not_found')
       }
       else {
         const { error } = await client.from('friendships').delete().eq('requester_id', userId).eq('addressee_id', me)
@@ -467,11 +487,18 @@ export function createSupabaseRepository(client: Client): DataRepository {
         fail(mError)
         completedAt = (ms ?? []).map(m => m.completed_at!).filter(Boolean)
         if (completedAt.length) {
-          const { data: ev, error: eError } = await client.from('evidences').select('kind, milestones!inner(track_id, completed_at)')
-            .in('milestones.track_id', ids).not('milestones.completed_at', 'is', null)
-          fail(eError)
-          evidenceCount = ev?.length ?? 0
-          certificateCount = (ev ?? []).filter(e => e.kind === 'certificate').length
+          // Counted server-side: a row list would stop at PostgREST's max-rows.
+          const count = (kind?: 'certificate') => {
+            let q = client.from('evidences').select('id, milestones!inner(track_id, completed_at)', { count: 'exact', head: true })
+              .in('milestones.track_id', ids).not('milestones.completed_at', 'is', null)
+            if (kind) q = q.eq('kind', kind)
+            return q
+          }
+          const [all, certs] = await Promise.all([count(), count('certificate')])
+          fail(all.error)
+          fail(certs.error)
+          evidenceCount = all.count ?? 0
+          certificateCount = certs.count ?? 0
         }
       }
       return {
