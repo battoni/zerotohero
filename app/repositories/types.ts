@@ -35,6 +35,8 @@ export interface DataRepository {
   setKudos(activityId: string, on: boolean): Promise<void>
 
   profile(handle: string): Promise<ProfileDetail | null>
+  /** completed_at of my own milestones completed at or after `since`. */
+  myCompletionsSince(since: Date): Promise<string[]>
 }
 
 export class RepoError extends Error {

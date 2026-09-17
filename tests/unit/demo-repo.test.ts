@@ -234,6 +234,17 @@ describe('social', () => {
     expect(p).toMatchObject({ handle: 'alex_dev', displayName: 'Alex D', locale: 'pt-BR' })
   })
 
+  it('lists my recent completions only', async () => {
+    const since = new Date(NOW.getTime() - 7 * 86_400_000)
+    const mine = await repo.myCompletionsSince(since)
+    expect(mine.length).toBeGreaterThan(0)
+    expect(mine.every(c => c >= since.toISOString())).toBe(true)
+    const id = await repo.createTrack(input)
+    const m = (await repo.getTrack(id))!.phases[0]!.milestones[0]!
+    await repo.completeMilestone(m.id)
+    expect(await repo.myCompletionsSince(since)).toHaveLength(mine.length + 1)
+  })
+
   it('builds a profile with stats', async () => {
     const p = (await repo.profile('rafa'))!
     expect(p).toMatchObject({ friendState: 'friends', finishedTracks: 1, activeTracks: 0 })

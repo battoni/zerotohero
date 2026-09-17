@@ -188,6 +188,14 @@ export function createSupabaseRepository(client: Client): DataRepository {
       return toProfile(data!)
     },
 
+    async myCompletionsSince(since) {
+      const me = await uid()
+      const { data, error } = await client.from('milestones').select('completed_at, tracks!inner(owner_id)')
+        .eq('tracks.owner_id', me).gte('completed_at', since.toISOString())
+      fail(error)
+      return (data ?? []).map(r => r.completed_at).filter((c): c is string => !!c)
+    },
+
     async listMyTracks() {
       const me = await uid()
       const { data, error } = await client.from('tracks').select('*')

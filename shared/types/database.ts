@@ -69,7 +69,7 @@ export interface Database {
         time_spent_minutes: number | null
         created_at: string
         updated_at: string
-      }, 'track_id' | 'phase_id' | 'title'>
+      }, 'track_id' | 'phase_id' | 'title', [Rel<'milestones_track_id_fkey', 'track_id', 'tracks'>]>
       evidences: Table<{
         id: string
         milestone_id: string

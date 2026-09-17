@@ -58,10 +58,10 @@ const greetName = computed(() => (mounted.value ? me.value?.displayName || me.va
 const today = computed(() => formatDate(new Date(), locale.value, { weekday: 'long', day: 'numeric', month: 'long' }))
 
 const { data, error, refresh } = useAsyncData('home', async () => {
-  const [tracks, feed, profile] = await Promise.all([repo.listMyTracks(), repo.feed(), loadMe()])
   // The feed is capped, so this week's count comes from my own completions.
-  const mine = profile ? await repo.profile(profile.handle) : null
-  return { tracks, feed, completedAt: mine?.completedAt ?? [] }
+  const since = new Date(Date.now() - 7 * 86_400_000)
+  const [tracks, feed, completedAt] = await Promise.all([repo.listMyTracks(), repo.feed(), repo.myCompletionsSince(since), loadMe()])
+  return { tracks, feed, completedAt }
 }, { server: false })
 
 const tracks = computed(() => data.value?.tracks ?? [])

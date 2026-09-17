@@ -305,6 +305,14 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
       return clone(p)
     },
 
+    async myCompletionsSince(since) {
+      const from = since.toISOString()
+      return state.tracks.filter(t => t.ownerId === state.meId)
+        .flatMap(milestonesOf)
+        .map(m => m.completedAt)
+        .filter((c): c is string => !!c && c >= from)
+    },
+
     async listMyTracks() {
       return state.tracks.filter(t => t.ownerId === state.meId)
         .map(summary)
