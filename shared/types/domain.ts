@@ -62,6 +62,8 @@ export interface Evidence {
   body: string | null
   learned: string | null
   fileName: string | null
+  /** A stored file the viewer can open through /api/evidence/:id/file. */
+  hasFile: boolean
   createdAt: string
 }
 

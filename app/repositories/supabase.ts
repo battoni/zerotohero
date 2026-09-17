@@ -70,6 +70,7 @@ const toEvidence = (r: EvidenceRow): Evidence => ({
   body: r.body,
   learned: r.learned,
   fileName: r.storage_path ? (r.storage_path.split('/').pop() ?? null)?.replace(/^\d+-/, '') ?? null : null,
+  hasFile: r.storage_path !== null,
   createdAt: r.created_at,
 })
 

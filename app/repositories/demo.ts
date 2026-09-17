@@ -150,7 +150,7 @@ export function buildDemoState(files: Record<string, string>, now: Date): DemoSt
   const spec = mine?.phases.flatMap(p => p.milestones).find(m => m.completedAt && m.tag === 'spec')
   if (spec) {
     state.evidences.push({
-      id: 'e-spec', milestoneId: spec.id, kind: 'note', url: null, fileName: null,
+      id: 'e-spec', milestoneId: spec.id, kind: 'note', url: null, fileName: null, hasFile: false,
       body: 'One page per project: goal, users, three screens, what is out of scope.',
       learned: 'Writing the edge cases first changed the data model.', createdAt: spec.completedAt!,
     })
@@ -411,6 +411,7 @@ export function createDemoRepository(opts: { files: Record<string, string>, now?
           body: ev.body?.trim() || null,
           learned: ev.learned?.trim() || null,
           fileName: ev.file?.name ?? null,
+          hasFile: false,
           createdAt: milestone.completedAt,
         })
       }

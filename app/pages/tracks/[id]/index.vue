@@ -72,6 +72,7 @@
                 <div class="flex min-w-0 flex-col">
                   <span class="text-xs font-bold text-muted">{{ e.milestoneTitle }}</span>
                   <a v-if="e.url" :href="e.url" target="_blank" rel="noopener noreferrer" class="truncate font-semibold text-violet underline-offset-2 hover:underline">{{ e.url.replace(/^https?:\/\//, '') }}</a>
+                  <a v-else-if="e.hasFile" :href="`/api/evidence/${e.id}/file`" target="_blank" rel="noopener" class="truncate font-semibold text-violet underline-offset-2 hover:underline" :data-testid="`evidence-file-${e.id}`">{{ e.fileName }}</a>
                   <span v-else-if="e.fileName" class="truncate font-semibold">{{ e.fileName }}</span>
                   <span v-if="e.body" class="line-clamp-2">“{{ e.body }}”</span>
                   <span v-if="e.learned" class="line-clamp-2 italic text-muted">{{ e.learned }}</span>
