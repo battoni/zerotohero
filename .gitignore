@@ -21,3 +21,6 @@ supabase/.branches/
 
 # Trilhas pessoais do dono para o seed.
 seed/personal/
+.vercel
+.env*
+!.env.example
