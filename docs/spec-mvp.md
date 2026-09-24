@@ -268,6 +268,19 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 | `NUXT_PUBLIC_I18N_BASE_URL` | Vercel (runtime) | Canonical e `hreflang`; no build vem de `NUXT_PUBLIC_SITE_URL` |
 | `E2E_BASE_URL` | CI ou local | Roda o E2E contra um servidor já no ar, sem subir o dev |
 
+### Deploy (Vercel)
+Produção em `https://zerotohero.battoni.dev`. O push no `main` publica.
+
+1. **Projeto:** preset Nuxt, Node 24.x. O `vercel.json` troca a instalação por `npm ci`.
+2. **Variáveis de produção:** `NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_KEY`, `NUXT_SUPABASE_SECRET_KEY`, `NUXT_PUBLIC_SITE_URL` e `NUXT_PUBLIC_I18N_BASE_URL`.
+   - A publishable key vai como `--type config`: é pública por desenho, e a CLI recusa um `NUXT_PUBLIC_` que pareça credencial sem o tipo explícito.
+   - Só a secret key é `sensitive`.
+   - Nada de `SEED_*` nem `SUPABASE_PROJECT_REF` na Vercel: são só do `.env` local.
+   - Não importar o `.env` pelo painel: as variáveis chegaram vazias em runtime. Adicionar uma a uma pela CLI (`printf "%s" "$VALOR" | vercel env add NOME production`) e conferir com `vercel env pull`.
+3. **Preview:** só `NUXT_PUBLIC_SITE_URL` e `NUXT_PUBLIC_I18N_BASE_URL`. Sem URL do Supabase, os previews rodam em modo demo e não tocam o banco de produção.
+4. **Supabase Auth:** Site URL `https://zerotohero.battoni.dev`. Redirect URLs `https://zerotohero.battoni.dev/confirm` e `https://zerotohero.battoni.dev/pt-BR/confirm`, além das de `http://localhost:3000`.
+5. **Conferir:** `/` e `/pt-BR` respondem 200; `/tracks` redireciona sem sessão; `GET /api/evidence/<uuid>/file` responde 404 para id inexistente; nenhum arquivo em `/_nuxt/` contém a secret key.
+
 ---
 
 ## 9. Estado da implementação (2026-09-17)

@@ -1,6 +1,6 @@
 # Zero to Hero — Roadmap pós-MVP
 
-Atualizado: 2026-09-23 · status: **planejado, nada iniciado**
+Atualizado: 2026-09-23 · status: **Fase 1 em andamento** (1.1 no ar; falta o OAuth)
 
 O MVP da `docs/spec-mvp.md` está pronto. Daqui em diante o produto cresce por fases. Cada item, ao começar, detalha na spec o que muda no modelo de dados, nas telas e nos testes. Esta página guarda a ordem, as decisões já tomadas e o que ainda precisa ser decidido.
 
