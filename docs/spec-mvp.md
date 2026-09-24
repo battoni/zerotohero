@@ -228,7 +228,7 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 
 ## 6. Seed
 
-- **Comando:** `npm run seed`, usando `SUPABASE_SECRET_KEY` apenas no ambiente local. `npm run seed -- --dry-run` só lê os arquivos e mostra o plano.
+- **Comando:** `npm run seed`, usando `NUXT_SUPABASE_SECRET_KEY` do `.env` local. `npm run seed -- --dry-run` só lê os arquivos e mostra o plano.
   - É **idempotente**: usa ids determinísticos (uuid v5 a partir do caminho do arquivo da trilha, como `demo/01-x.md`, e da posição de fases e marcos). Renomear o arquivo cria outra trilha; `--reset` limpa.
 - **Usuários de demonstração:** Ana, Rafa, Lu (handle `luiza`), Bruno, Carla e um usuário `e2e`, todos com e-mail `@demo.zerotohero.local` e a senha `SEED_DEMO_PASSWORD` (mínimo de 8 caracteres).
   - Arquivos `seed/demo/<handle>.<slug>.md`: o prefixo é o dono. A persona "Alex" (`alex.*`) existe só no modo demo do navegador e o seed a ignora.
@@ -258,11 +258,10 @@ emoji: 🤖 | color: violet | due: 2026-10-31 | visibility: public
 |---|---|---|
 | `NUXT_PUBLIC_SUPABASE_URL` | `.env` e Vercel | Cliente |
 | `NUXT_PUBLIC_SUPABASE_KEY` | `.env` e Vercel | Publishable key (pública por desenho) |
-| `SUPABASE_SECRET_KEY` | **só** `.env` local | Seed. O app não lê esta variável; não configurar na Vercel |
-| `NUXT_SUPABASE_SECRET_KEY` | variável de **runtime** do servidor na Vercel (não de build) | Assinar URLs de arquivos de evidência. O `nuxt.config` zera o valor de build, então a chave nunca entra no bundle |
+| `NUXT_SUPABASE_SECRET_KEY` | `.env` local e variável de **runtime** do servidor na Vercel (não de build) | Assinar URLs de arquivos de evidência e rodar o seed (uma chave só, antes havia `SUPABASE_SECRET_KEY` só para o seed). O `nuxt.config` zera o valor de build, então a chave nunca entra no bundle |
 | `SEED_OWNER_EMAIL` | `.env` local | Dono das trilhas pessoais do seed |
 | `SEED_DEMO_PASSWORD` | `.env` local | Senha dos usuários de demonstração e do usuário de E2E |
-| `SUPABASE_PROJECT_REF` | `.env` local | `npm run db:types` |
+| `SUPABASE_PROJECT_REF` | `.env` local | `supabase link` e `npm run db:types` |
 | `NUXT_PUBLIC_DATA_MODE` | `.env` e Vercel | `demo` ou `supabase` (padrão: `supabase` se houver URL) |
 | `NUXT_PUBLIC_DEV_LOGIN` | `.env` (preview/E2E) | Mostra o login por senha fora do `nuxt dev` |
 | `NUXT_PUBLIC_SITE_URL` | `.env` e Vercel | Redirect de OAuth (`<site>/confirm` e `<site>/pt-BR/confirm`) e base de URLs no build |

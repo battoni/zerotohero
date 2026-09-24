@@ -7,7 +7,7 @@
  *
  * Idempotent: every id is a UUID v5 derived from stable names, and inserts
  * skip rows that already exist (so activity triggers fire once).
- * Needs NUXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (server-only).
+ * Needs NUXT_PUBLIC_SUPABASE_URL and NUXT_SUPABASE_SECRET_KEY (server-only).
  */
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
@@ -116,9 +116,9 @@ if (dryRun) {
 }
 
 const url = process.env.NUXT_PUBLIC_SUPABASE_URL
-const secret = process.env.SUPABASE_SECRET_KEY
+const secret = process.env.NUXT_SUPABASE_SECRET_KEY
 if (!url || !secret) {
-  console.error('Set NUXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in .env (see .env.example).')
+  console.error('Set NUXT_PUBLIC_SUPABASE_URL and NUXT_SUPABASE_SECRET_KEY in .env (see .env.example).')
   process.exit(1)
 }
 const db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } })

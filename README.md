@@ -21,7 +21,7 @@ nvm use && npm ci && npm run dev   # then click "Try the demo"
 ```bash
 nvm use            # Node 24
 npm ci             # install exactly what package-lock.json pins
-cp .env.example .env   # Supabase URL and publishable key; SUPABASE_SECRET_KEY for the seed
+cp .env.example .env   # Supabase URL, publishable and secret keys, seed settings
 npx supabase login
 npx supabase link --project-ref <project-ref>
 npx supabase db push   # apply supabase/migrations
