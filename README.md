@@ -13,14 +13,14 @@ Build a study trail, break it into milestones and tick them off one by one. Use 
 With no Supabase URL configured the app runs in **demo mode**: sample trails, friends and activity live in your browser (localStorage).
 
 ```bash
-nvm use && npm install && npm run dev   # then click "Try the demo"
+nvm use && npm ci && npm run dev   # then click "Try the demo"
 ```
 
 ## Getting started with Supabase
 
 ```bash
-nvm use            # Node 22
-npm install
+nvm use            # Node 24
+npm ci             # install exactly what package-lock.json pins
 cp .env.example .env   # Supabase URL and publishable key; SUPABASE_SECRET_KEY for the seed
 npx supabase login
 npx supabase link --project-ref <project-ref>

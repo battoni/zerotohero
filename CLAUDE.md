@@ -8,7 +8,7 @@ App genérico de **trilhas de estudo com marcos**. Qualquer pessoa cria uma tril
 - **O repositório é PÚBLICO.**
   - `plans/` e `seed/personal/` estão no `.gitignore` e têm contexto privado. Nunca versione, cite ou copie o conteúdo delas para arquivos rastreados.
   - Nunca commite `.env` nem chaves.
-- **Node 22** (`.nvmrc`). O Node 20 quebra o ESLint (`Object.groupBy`).
+- **Node 24** (`.nvmrc`). O Node 20 quebra o ESLint (`Object.groupBy`).
 - **i18n em tudo.** Nenhum texto de UI fica hardcoded.
   - Chaves em `i18n/locales/{en,pt-BR}.json`, agrupadas por tela. As duas línguas sempre na mesma mudança; `npm run i18n:check` garante a paridade.
   - Conteúdo criado pelo usuário não é traduzido.
