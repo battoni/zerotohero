@@ -152,7 +152,7 @@ test('an unknown trail shows a friendly message', async ({ page }) => {
 
 test('an unknown page shows a localized 404 with a way back', async ({ page }) => {
   await enterDemo(page)
-  await page.goto('/pt-BR/nada-aqui')
+  await go(page, '/pt-BR/nada-aqui')
   await expect(page.getByTestId('error-page')).toContainText('Esta página não existe')
   await page.getByTestId('error-back').click()
   await expect(page).toHaveURL(/\/pt-BR\/tracks$/)
