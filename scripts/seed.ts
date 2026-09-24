@@ -140,6 +140,13 @@ async function findUserByEmail(email: string) {
   return null
 }
 
+// Accounts created before the migrations missed the on_auth_user_created trigger; mirror it.
+async function ensureProfile(user: { id: string, user_metadata?: Record<string, string> }) {
+  const handle = `user_${user.id.replace(/-/g, '').slice(0, 12)}`
+  const displayName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? null
+  await must(db.from('profiles').upsert({ id: user.id, handle, display_name: displayName, avatar_url: user.user_metadata?.avatar_url ?? null }, { onConflict: 'id', ignoreDuplicates: true }), `profile ${user.id}`)
+}
+
 async function ensureDemoUser(p: typeof DEMO_PEOPLE[number], password: string): Promise<string> {
   const email = `${p.handle}@${DEMO_DOMAIN}`
   let user = await findUserByEmail(email)
@@ -243,6 +250,7 @@ async function main() {
       console.warn(`  ! ${ownerEmail} has not signed in yet; sign in once and run the seed again for the personal trails.`)
     }
     else {
+      await ensureProfile(owner)
       for (const t of personalTrails) {
         const trackId = await insertTrail(t, owner.id)
         await markCompleted(trackId)
