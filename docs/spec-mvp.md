@@ -1,6 +1,6 @@
 # Zero to Hero — Spec do MVP
 
-Atualizado: 2026-09-17 · status: **MVP implementado na branch `feature/mvp`** (ver §9)
+Atualizado: 2026-09-23 · status: **MVP implementado e publicado no `main`** (ver §9). Os próximos passos estão em `docs/roadmap.md`.
 
 > **O produto em uma frase:** qualquer pessoa cria uma trilha de estudo, divide em fases e marcos, e vai concluindo cada marco. Pode anexar evidências, usar trilhas públicas como modelo e acompanhar amigos.
 
@@ -28,7 +28,7 @@ Protótipo aprovado (6 telas): artefato "The Way Out", nome antigo do projeto.
 | Ajustes | `/settings` | Idioma, handle, nome exibido e sair. No modo demo, também "recomeçar o demo" |
 | Erro | qualquer rota desconhecida | 404 localizada, com volta para as trilhas ou para o início |
 
-### Fica fora do MVP
+### Fica fora do MVP (agora planejado em `docs/roadmap.md`)
 - Gerador de perguntas com IA
 - Sub-itens dentro de um marco
 - Notificações por e-mail ou push

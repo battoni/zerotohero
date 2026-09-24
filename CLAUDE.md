@@ -2,7 +2,7 @@
 
 App genérico de **trilhas de estudo com marcos**. Qualquer pessoa cria uma trilha, divide em fases e marcos, conclui cada marco com uma evidência opcional, usa trilhas públicas como modelo e acompanha amigos.
 
-**Fonte da verdade do produto:** `docs/spec-mvp.md`. Leia antes de implementar qualquer coisa. Se precisar divergir da spec, registre o porquê na própria spec, na mesma mudança.
+**Fonte da verdade do produto:** `docs/spec-mvp.md`. Leia antes de implementar qualquer coisa. A ordem e as decisões do que vem depois do MVP ficam em `docs/roadmap.md`. Se precisar divergir da spec, registre o porquê na própria spec, na mesma mudança.
 
 ## Regras que não se negociam
 - **O repositório é PÚBLICO.**
