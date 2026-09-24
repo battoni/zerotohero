@@ -329,5 +329,69 @@
   "meta": {
     "description": "Build a study trail, break it into milestones and tick them off one by one.",
     "ogDescription": "Study trails with milestones, evidence and friends."
+  },
+  "legal": {
+    "updated": "Last updated: {date}",
+    "contact": "Questions or requests:",
+    "privacy": {
+      "title": "Privacy policy",
+      "intro": "Zero to Hero is a free app for study trails, run by battoni.dev. This page explains what we store, who can see it and how to have it deleted.",
+      "collect": {
+        "title": "What we store",
+        "body": "When you sign in with Google or GitHub we receive your name, email address and profile picture.\nYour profile: username, display name and language.\nWhat you create: trails, phases, milestones, completion dates, time spent and evidence (links, notes and the files you upload).\nSocial activity: friendships, the trails you follow and the cheers you give."
+      },
+      "visibility": {
+        "title": "Who can see it",
+        "body": "Private trails are visible only to you. Friends-only trails are visible to your friends. Public trails, your username, display name and profile picture are visible to anyone signed in to the app. Your email address is never shown to other people."
+      },
+      "processors": {
+        "title": "Services we use",
+        "body": "Supabase stores the database, the sign-in and the uploaded files. Vercel hosts the app. Google and GitHub handle sign-in. We do not sell your data, show ads or use analytics or tracking tools."
+      },
+      "cookies": {
+        "title": "Cookies",
+        "body": "We use only the cookies the app needs to work: one keeps you signed in and one remembers your language."
+      },
+      "retention": {
+        "title": "How long we keep it",
+        "body": "Your data stays while your account exists. Deleting a trail removes it and its uploaded files. To delete your account and everything in it, email {email}; we do it within 30 days."
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "Under the LGPD and the GDPR you can ask for a copy of your data, a correction, or its deletion. Email {email} and we answer within 15 days."
+      }
+    },
+    "terms": {
+      "title": "Terms of use",
+      "intro": "By using Zero to Hero you agree to these terms. They are short on purpose.",
+      "service": {
+        "title": "The service",
+        "body": "Zero to Hero is free and provided as it is. It can change, pause or end; if it ends, we will give notice so you can copy your trails."
+      },
+      "account": {
+        "title": "Your account",
+        "body": "Sign in only with your own Google or GitHub account and keep it safe. You are responsible for what is done with it."
+      },
+      "content": {
+        "title": "Your content",
+        "body": "What you create stays yours. You allow us to store it and show it according to the visibility you choose. When you make a trail public, other people can copy it as a template for their own trails."
+      },
+      "use": {
+        "title": "Fair use",
+        "body": "Do not post illegal content, other people's personal data or anything that harasses someone. Do not upload malware, try to reach data that is not yours, or overload the app with automated access."
+      },
+      "removal": {
+        "title": "Removal",
+        "body": "We may remove content or suspend accounts that break these terms."
+      },
+      "warranty": {
+        "title": "No warranty",
+        "body": "We work to keep the app available and your data safe, but we cannot promise it will never fail. As far as the law allows, we are not liable for losses from using the app. Keep your own copy of anything important."
+      },
+      "changes": {
+        "title": "Changes",
+        "body": "When these terms change, the date at the top changes too. Using the app after that means you accept the new version."
+      }
+    }
   }
 }

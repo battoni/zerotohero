@@ -40,6 +40,10 @@
     <main class="mx-auto max-w-[1360px]">
       <slot />
     </main>
+    <footer class="mx-auto mt-16 flex max-w-[1360px] flex-wrap justify-center gap-4 text-[13px] font-semibold text-muted" data-testid="footer">
+      <NuxtLink :to="localePath('/privacidade')" class="hover:text-ink" data-testid="footer-privacy">{{ $t('legal.privacy.title') }}</NuxtLink>
+      <NuxtLink :to="localePath('/termos')" class="hover:text-ink" data-testid="footer-terms">{{ $t('legal.terms.title') }}</NuxtLink>
+    </footer>
   </div>
 </template>
 

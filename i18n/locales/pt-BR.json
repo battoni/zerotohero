@@ -329,5 +329,69 @@
   "meta": {
     "description": "Monte uma trilha de estudo, divida em marcos e vá riscando um por um.",
     "ogDescription": "Trilhas de estudo com marcos, evidências e amigos."
+  },
+  "legal": {
+    "updated": "Atualizado em {date}",
+    "contact": "Dúvidas ou pedidos:",
+    "privacy": {
+      "title": "Política de privacidade",
+      "intro": "O Zero to Hero é um app gratuito de trilhas de estudo, mantido pela battoni.dev. Esta página explica o que guardamos, quem pode ver e como pedir a exclusão.",
+      "collect": {
+        "title": "O que guardamos",
+        "body": "Quando você entra com Google ou GitHub, recebemos seu nome, e-mail e foto de perfil.\nSeu perfil: nome de usuário, nome exibido e idioma.\nO que você cria: trilhas, fases, marcos, datas de conclusão, tempo gasto e evidências (links, anotações e os arquivos que você envia).\nAtividade social: amizades, as trilhas que você segue e os aplausos que você dá."
+      },
+      "visibility": {
+        "title": "Quem pode ver",
+        "body": "Trilhas privadas só você vê. Trilhas para amigos, seus amigos veem. Trilhas públicas, seu nome de usuário, nome exibido e foto ficam visíveis para qualquer pessoa logada no app. Seu e-mail nunca aparece para outras pessoas."
+      },
+      "processors": {
+        "title": "Serviços que usamos",
+        "body": "O Supabase guarda o banco de dados, o login e os arquivos enviados. A Vercel hospeda o app. Google e GitHub cuidam do login. Não vendemos seus dados, não mostramos anúncios e não usamos ferramentas de análise ou rastreamento."
+      },
+      "cookies": {
+        "title": "Cookies",
+        "body": "Usamos só os cookies de que o app precisa para funcionar: um mantém você logado e outro lembra o seu idioma."
+      },
+      "retention": {
+        "title": "Por quanto tempo guardamos",
+        "body": "Seus dados ficam enquanto sua conta existir. Apagar uma trilha remove a trilha e os arquivos dela. Para apagar a conta e tudo o que há nela, escreva para {email}; fazemos isso em até 30 dias."
+      },
+      "rights": {
+        "title": "Seus direitos",
+        "body": "Pela LGPD e pelo GDPR, você pode pedir uma cópia dos seus dados, a correção ou a exclusão. Escreva para {email} e respondemos em até 15 dias."
+      }
+    },
+    "terms": {
+      "title": "Termos de uso",
+      "intro": "Ao usar o Zero to Hero, você concorda com estes termos. Eles são curtos de propósito.",
+      "service": {
+        "title": "O serviço",
+        "body": "O Zero to Hero é gratuito e oferecido como está. Ele pode mudar, pausar ou acabar; se acabar, avisamos antes para você copiar suas trilhas."
+      },
+      "account": {
+        "title": "Sua conta",
+        "body": "Entre só com a sua própria conta do Google ou do GitHub e mantenha ela segura. Você responde pelo que for feito com ela."
+      },
+      "content": {
+        "title": "Seu conteúdo",
+        "body": "O que você cria continua seu. Você nos autoriza a guardar e mostrar esse conteúdo conforme a visibilidade que escolher. Quando você torna uma trilha pública, outras pessoas podem copiá-la como modelo para as próprias trilhas."
+      },
+      "use": {
+        "title": "Uso justo",
+        "body": "Não publique conteúdo ilegal, dados pessoais de outras pessoas nem nada que assedie alguém. Não envie malware, não tente acessar dados que não são seus e não sobrecarregue o app com acesso automatizado."
+      },
+      "removal": {
+        "title": "Remoção",
+        "body": "Podemos remover conteúdo ou suspender contas que descumpram estes termos."
+      },
+      "warranty": {
+        "title": "Sem garantia",
+        "body": "Trabalhamos para manter o app no ar e seus dados seguros, mas não dá para prometer que ele nunca vai falhar. Até onde a lei permite, não respondemos por perdas causadas pelo uso do app. Guarde sua própria cópia do que for importante."
+      },
+      "changes": {
+        "title": "Mudanças",
+        "body": "Quando estes termos mudarem, a data no topo muda junto. Continuar usando o app depois disso significa aceitar a nova versão."
+      }
+    }
   }
 }

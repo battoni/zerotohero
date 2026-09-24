@@ -1,4 +1,4 @@
-const PUBLIC = new Set(['/', '/login', '/confirm'])
+const PUBLIC = new Set(['/', '/login', '/confirm', '/privacidade', '/termos'])
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const { loggedIn, loadMe } = useSession()

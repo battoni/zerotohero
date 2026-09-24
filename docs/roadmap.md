@@ -14,6 +14,7 @@ O MVP da `docs/spec-mvp.md` está pronto. Daqui em diante o produto cresce por f
 - Vercel, em **`zerotohero.battoni.dev`**.
 - Variáveis conforme a spec §8. `NUXT_SUPABASE_SECRET_KEY` só em runtime.
 - Um checklist de deploy na spec, do projeto zerado ao primeiro login.
+- Páginas `/privacidade` e `/termos`, exigidas pelo Google para publicar a tela de consentimento.
 - **Pronto quando:** o build de produção roda na Vercel, `/` e `/pt-BR` respondem no domínio, e o CI continua verde.
 
 ### 1.2 OAuth Google e GitHub

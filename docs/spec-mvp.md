@@ -26,6 +26,7 @@ Protótipo aprovado (6 telas): artefato "The Way Out", nome antigo do projeto.
 | Amigos | `/friends` | Feed de atividades dos amigos, "boa!" (kudos) e pedidos de amizade |
 | Perfil | `/u/:handle` | Estatísticas, mapa de 20 semanas e trilhas visíveis para quem está vendo |
 | Ajustes | `/settings` | Idioma, handle, nome exibido e sair. No modo demo, também "recomeçar o demo" |
+| Privacidade e termos | `/privacidade`, `/termos` | Política de privacidade e termos de uso, públicas e nos dois idiomas, com link no rodapé. Exigidas pelo Google para publicar o OAuth. Contato e data da revisão em `app/utils/legal.ts` |
 | Erro | qualquer rota desconhecida | 404 localizada, com volta para as trilhas ou para o início |
 
 ### Fica fora do MVP (agora planejado em `docs/roadmap.md`)

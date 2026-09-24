@@ -186,3 +186,15 @@ test('pages carry localized meta and language alternates', async ({ page }) => {
   await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveCount(1)
   await expect(page.locator('link[rel="alternate"][hreflang="pt-BR"]')).toHaveCount(1)
 })
+
+test('privacy and terms open without signing in, from the footer', async ({ page }) => {
+  await go(page, '/')
+  await page.getByTestId('footer-privacy').click()
+  await expect(page).toHaveURL(/\/privacidade$/)
+  await expect(page.getByTestId('legal-privacy')).toBeVisible()
+  await page.getByTestId('footer-terms').click()
+  await expect(page).toHaveURL(/\/termos$/)
+  await expect(page.getByTestId('legal-terms')).toBeVisible()
+  await go(page, '/pt-BR/privacidade')
+  await expect(page.getByTestId('legal-privacy')).toBeVisible()
+})
